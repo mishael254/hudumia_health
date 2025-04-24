@@ -37,7 +37,7 @@ app.get('/api/test-db', async (req, res) => {
 
 //doctors signup
 app.post('/api/doctors/signup', async (req, res) => {
-  const { name, email, password } = req.body;
+  const { firstName, secondName, userName, email, password } = req.body;
 
   try {
     // Check if doctor already exists
@@ -50,9 +50,9 @@ app.post('/api/doctors/signup', async (req, res) => {
     const { ascii: twoFASecret, qrCode } = await generate2FASecret(email);
 
     const result = await pool.query(
-      `INSERT INTO doctors (name, email, password_hash, two_fa_secret)
+      `INSERT INTO doctors (first_name, second_name, user_name, email, password_hash, two_fa_secret)
        VALUES ($1, $2, $3, $4) RETURNING id, email`,
-      [name, email, passwordHash, twoFASecret]
+      [firstName, secondName, userName, email, passwordHash, twoFASecret]
     );
 
     res.status(201).json({
