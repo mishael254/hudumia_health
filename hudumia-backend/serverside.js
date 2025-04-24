@@ -10,6 +10,8 @@ const pool = require('./hudumiadb');
 const {hashPassword, comparePassword, generateToken} = require('./utils/auth');
 const { generate2FASecret } = require('./utils/2fa');
 
+const { verify2FAToken } = require('./utils/2fa');
+
 // Middleware
 app.use(cors()); // allow frontend to access backend
 app.use(express.json()); // allow JSON parsing
@@ -62,5 +64,33 @@ app.post('/api/doctors/signup', async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Signup failed' });
+  }
+});
+
+//doctors sign in
+
+app.post('/api/doctors/signin', async (req, res) => {
+  const { email, password, token } = req.body;
+
+  try {
+    const result = await pool.query('SELECT * FROM doctors WHERE email = $1', [email]);
+    const doctor = result.rows[0];
+
+    if (!doctor || !(await comparePassword(password, doctor.password_hash))) {
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
+
+    const is2FAValid = verify2FAToken(doctor.two_fa_secret, token);
+    if (!is2FAValid) {
+      return res.status(401).json({ error: 'Invalid 2FA token' });
+    }
+
+    const jwtToken = generateToken({ id: doctor.id, email: doctor.email });
+
+    res.json({ message: 'Signin successful', token: jwtToken });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Signin failed' });
   }
 });
