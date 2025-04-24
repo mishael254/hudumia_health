@@ -196,3 +196,17 @@ app.get('/api/clients', async (req, res) => {
       res.status(500).json({ error: 'Failed to fetch clients' });
   }
 });
+// Get details of a specific client
+app.get('/api/clients/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+      const result = await pool.query('SELECT * FROM clients WHERE id = $1', [id]);
+      if (result.rows.length === 0) {
+          return res.status(404).json({ error: 'Client not found' });
+      }
+      res.json(result.rows[0]);
+  } catch (error) {
+      console.error('Error fetching client:', error);
+      res.status(500).json({ error: 'Failed to fetch client' });
+  }
+});
