@@ -169,3 +169,20 @@ app.delete('/api/programs/:id', async (req, res) => {
       res.status(500).json({ error: 'Failed to delete health program' });
   }
 });
+
+// --------------------- Clients Routes ---------------------
+
+// Create a new client
+app.post('/api/clients', async (req, res) => {
+  const { full_name, gender, date_of_birth, phone_number } = req.body;
+  try {
+      const result = await pool.query(
+          'INSERT INTO clients (full_name, gender, date_of_birth, phone_number) VALUES ($1, $2, $3, $4) RETURNING *',
+          [full_name, gender, date_of_birth, phone_number]
+      );
+      res.status(201).json(result.rows[0]);
+  } catch (error) {
+      console.error('Error creating client:', error);
+      res.status(500).json({ error: 'Failed to register client' });
+  }
+});
