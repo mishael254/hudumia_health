@@ -261,3 +261,20 @@ app.post('/api/enrollments', async (req, res) => {
       res.status(500).json({ error: 'Failed to enroll client in program' });
   }
 });
+// Get all programs a specific client is enrolled in
+app.get('/api/clients/:clientId/enrollments', async (req, res) => {
+  const { clientId } = req.params;
+  try {
+      const result = await pool.query(
+          `SELECT pe.enrollment_date, hp.id AS program_id, hp.name AS program_name, hp.description AS program_description
+          FROM program_enrollments pe
+          JOIN health_programs hp ON pe.program_id = hp.id
+          WHERE pe.client_id = $1`,
+          [clientId]
+      );
+      res.json(result.rows);
+  } catch (error) {
+      console.error('Error fetching enrollments:', error);
+      res.status(500).json({ error: 'Failed to fetch client enrollments' });
+  }
+});
