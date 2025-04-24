@@ -21,9 +21,7 @@ app.get("/api/health-check", (req, res) => {
   res.json({ status: "Hudumia backend is running" });
 });
 
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
-});
+
 //test the db connectivity
 app.get('/api/test-db', async (req, res) => {
   try {
@@ -97,6 +95,9 @@ app.post('/api/doctors/signin', async (req, res) => {
     res.status(500).json({ error: 'Signin failed' });
   }
 });
+
+// --------------------- Health Programs Routes ---------------------
+
 
 // Create a new health program
 app.post('/api/programs', async (req, res) => {
@@ -277,4 +278,8 @@ app.get('/api/clients/:clientId/enrollments', async (req, res) => {
       console.error('Error fetching enrollments:', error);
       res.status(500).json({ error: 'Failed to fetch client enrollments' });
   }
+});
+
+app.listen(PORT, () => {
+  console.log(`Server running on http://localhost:${PORT}`);
 });
