@@ -112,3 +112,13 @@ app.post('/api/programs', async (req, res) => {
       res.status(500).json({ error: 'Failed to create health program' });
   }
 });
+// Get a list of all health programs
+app.get('/api/programs', async (req, res) => {
+  try {
+      const result = await pool.query('SELECT * FROM health_programs');
+      res.json(result.rows);
+  } catch (error) {
+      console.error('Error fetching programs:', error);
+      res.status(500).json({ error: 'Failed to fetch health programs' });
+  }
+});
