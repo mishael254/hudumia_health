@@ -242,3 +242,22 @@ app.delete('/api/clients/:id', async (req, res) => {
       res.status(500).json({ error: 'Failed to delete client' });
   }
 });
+// --------------------- Program Enrollments Routes ---------------------
+
+// Enroll a client in a program
+app.post('/api/enrollments', async (req, res) => {
+  const { clientId, programId } = req.body;
+  try {
+      const result = await pool.query(
+          'INSERT INTO program_enrollments (client_id, program_id) VALUES ($1, $2) RETURNING *',
+          [clientId, programId]
+      );
+      res.status(201).json(result.rows[0]);
+  } catch (error) {
+      console.error('Error enrolling client:', error);
+      if (error.code === '23505') { // Unique constraint violation
+          return res.status(400).json({ error: 'Client is already enrolled in this program' });
+      }
+      res.status(500).json({ error: 'Failed to enroll client in program' });
+  }
+});
