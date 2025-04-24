@@ -137,3 +137,21 @@ app.get('/api/programs/:id', async (req, res) => {
         res.status(500).json({ error: 'Failed to fetch health program' });
     }
 });
+// Update an existing health program
+app.put('/api/programs/:id', async (req, res) => {
+  const { id } = req.params;
+  const { name, description } = req.body;
+  try {
+      const result = await pool.query(
+          'UPDATE health_programs SET name = $1, description = $2, updated_at = NOW() WHERE id = $3 RETURNING *',
+          [name, description, id]
+      );
+      if (result.rows.length === 0) {
+          return res.status(404).json({ error: 'Health program not found' });
+      }
+      res.json(result.rows[0]);
+  } catch (error) {
+      console.error('Error updating program:', error);
+      res.status(500).json({ error: 'Failed to update health program' });
+  }
+});
