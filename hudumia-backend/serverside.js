@@ -12,7 +12,7 @@ app.use(express.json()); // allow JSON parsing
 
 // Sample route
 app.get("/api/health-check", (req, res) => {
-  res.json({ status: "Huduma backend is running" });
+  res.json({ status: "Hudumia backend is running" });
 });
 
 app.listen(PORT, () => {
