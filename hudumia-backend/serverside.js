@@ -70,10 +70,13 @@ app.post('/api/doctors/signup', async (req, res) => {
 //doctors sign in
 
 app.post('/api/doctors/signin', async (req, res) => {
-  const { email, password, token } = req.body;
+  const { identifier, password, token } = req.body;
 
   try {
-    const result = await pool.query('SELECT * FROM doctors WHERE email = $1', [email]);
+    const result = await pool.query(
+      'SELECT * FROM doctors WHERE email = $1 OR user_name = $1',
+      [identifier]
+    );
     const doctor = result.rows[0];
 
     if (!doctor || !(await comparePassword(password, doctor.password_hash))) {
