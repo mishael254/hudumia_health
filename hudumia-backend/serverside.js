@@ -155,3 +155,17 @@ app.put('/api/programs/:id', async (req, res) => {
       res.status(500).json({ error: 'Failed to update health program' });
   }
 });
+// Delete a health program
+app.delete('/api/programs/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+      const result = await pool.query('DELETE FROM health_programs WHERE id = $1 RETURNING *', [id]);
+      if (result.rows.length === 0) {
+          return res.status(404).json({ error: 'Health program not found' });
+      }
+      res.json({ message: 'Health program deleted successfully' });
+  } catch (error) {
+      console.error('Error deleting program:', error);
+      res.status(500).json({ error: 'Failed to delete health program' });
+  }
+});
