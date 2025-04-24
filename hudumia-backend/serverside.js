@@ -97,3 +97,18 @@ app.post('/api/doctors/signin', async (req, res) => {
     res.status(500).json({ error: 'Signin failed' });
   }
 });
+
+// Create a new health program
+app.post('/api/programs', async (req, res) => {
+  const { name, description } = req.body;
+  try {
+      const result = await pool.query(
+          'INSERT INTO health_programs (name, description) VALUES ($1, $2) RETURNING *',
+          [name, description]
+      );
+      res.status(201).json(result.rows[0]);
+  } catch (error) {
+      console.error('Error creating program:', error);
+      res.status(500).json({ error: 'Failed to create health program' });
+  }
+});
