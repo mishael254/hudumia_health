@@ -1,7 +1,7 @@
-// huduma-backend/serverside.js
+// hudumia-backend/serverside.js
 
-const express = require('express');
-const cors = require('cors');
+const express = require("express");
+const cors = require("cors");
 
 const app = express();
 const PORT = 3004;
@@ -11,8 +11,8 @@ app.use(cors()); // allow frontend to access backend
 app.use(express.json()); // allow JSON parsing
 
 // Sample route
-app.get('/api/health-check', (req, res) => {
-  res.json({ status: 'Huduma backend is running' });
+app.get("/api/health-check", (req, res) => {
+  res.json({ status: "Huduma backend is running" });
 });
 
 app.listen(PORT, () => {

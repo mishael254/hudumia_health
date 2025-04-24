@@ -2,7 +2,7 @@
 .gitignore
 # dependencies
 /node_modules
-/huduma-backend/node_modules
+/hudumia-backend/node_modules
 /.pnp
 .pnp.js
 
