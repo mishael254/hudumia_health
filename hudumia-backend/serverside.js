@@ -186,3 +186,13 @@ app.post('/api/clients', async (req, res) => {
       res.status(500).json({ error: 'Failed to register client' });
   }
 });
+// Get a list of all registered clients
+app.get('/api/clients', async (req, res) => {
+  try {
+      const result = await pool.query('SELECT * FROM clients');
+      res.json(result.rows);
+  } catch (error) {
+      console.error('Error fetching clients:', error);
+      res.status(500).json({ error: 'Failed to fetch clients' });
+  }
+});
