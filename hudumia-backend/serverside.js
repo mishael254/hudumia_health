@@ -101,7 +101,6 @@ app.post('/api/doctors/signin', async (req, res) => {
   }
 });
 
-//doctors if forgot password
 
 // initiating a password reset
 app.post('/api/doctors/forgot-password', async (req, res) => {
