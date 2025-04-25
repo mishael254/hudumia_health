@@ -28,3 +28,5 @@ const authenticateDoctor = async (req, res, next) => {
         return res.status(401).json({ error: 'Unauthorized: Invalid token' });
     }
 };
+
+module.exports = authenticateDoctor;
