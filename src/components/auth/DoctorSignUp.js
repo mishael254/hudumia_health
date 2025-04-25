@@ -92,7 +92,7 @@ function DoctorSignUp() {
                 <MDBCheckbox name='flexCheck' value='' id='flexCheckDefault' label='Subscribe to our newsletter' />
               </div>
 
-              <MDBBtn className='mb-4' size='lg'>Register</MDBBtn>
+              <MDBBtn className='mb-4' size='lg' onClick = {handleSubmit}>Register</MDBBtn>
 
             </MDBCol>
 
