@@ -44,14 +44,16 @@ app.post('/api/doctors/signup', async (req, res) => {
     const { firstName, secondName, userName, email, phoneNumber, password } = req.body;
 
     try {
-        // Check if doctor already exists (email or phone_number) - important to check both
-        const existing = await pool.query('SELECT * FROM doctors WHERE email = $1 OR phone_number = $2', [email, phoneNumber]);
+        // Check if doctor already exists (email or phone_number or username) - important to check both
+        const existing = await pool.query('SELECT * FROM doctors WHERE email = $1 OR phone_number = $2 OR user_name = $3', [email, phoneNumber, userName]);
         if (existing.rows.length > 0) {
-            if (existing.rows.some(row => row.email === email)) {
-                return res.status(400).json({ error: 'Email already exists' });
-            } else {
-                return res.status(400).json({ error: 'Phone number already exists' }); // IMPORTANT
-            }
+          if (existing.rows.some(row => row.email === email)) {
+              return res.status(400).json({ error: 'Email already exists' });
+          } else if (existing.rows.some(row => row.phone_number === phoneNumber)) {
+              return res.status(400).json({ error: 'Phone number already exists' });
+          } else {
+              return res.status(400).json({ error: 'Username already exists' }); // ADDED THIS
+          }
         }
 
         const passwordHash = await hashPassword(password);
