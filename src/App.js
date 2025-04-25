@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Link } from 'react-router-dom';
-import AppRoutes from './Routes'; // Import the AppRoutes component
+import AppRoutes from './routing/Routes'; // Import the AppRoutes component
 
 const App = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
