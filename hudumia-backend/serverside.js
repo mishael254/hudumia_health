@@ -15,6 +15,7 @@ const { verify2FAToken } = require('./utils/2fa');
 const authenticateDoctor = require('./middleware/authMiddleware');
 
 const crypto = require('crypto');
+require('dotenv').config();
 const transporter = require('./utils/emailConfig');
 
 // Middleware
