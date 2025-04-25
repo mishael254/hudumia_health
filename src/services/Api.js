@@ -1,28 +1,30 @@
 import axios from 'axios';
-const API_BASE_URL = 'http://localhost:3004';
+const API_BASE_URL = 'http://localhost:3004/api';
 
 //Doctor sign-up
 export const signupDoctor = async (doctorData) => {
   try {
+    console.log('signupDoctor called with data:', doctorData);
     const response = await axios.post(`${API_BASE_URL}/doctors/signup`, doctorData);
-    const data = response.data; // Get the entire response data
+    const data = response.data;
 
-    if (response.status === 201) { // Changed to 201 (Created) for successful signup
-      // Return the entire data object
+    if (response.status === 201) {
       return data;
     } else {
+      console.error('signupDoctor error:', data);
       throw new Error(data.message || 'Signup failed');
     }
   } catch (error) {
-     if (error.response) {
-      // The request was made and the server responded with a status code
-      // that falls out of the range of 2xx
-      throw new Error(error.response.data.message || 'Signup failed');
+    console.error('signupDoctor catch error:', error);
+    if (error.response) {
+      console.error('signupDoctor error.response:', error.response);
+      // IMPORTANT:  Use the server's message if available
+      throw new Error(error.response.data.error || 'Signup failed'); 
     } else if (error.request) {
-      // The request was made but no response was received
+      console.error('signupDoctor error.request', error.request);
       throw new Error('No response from server');
     } else {
-      // Something happened in setting up the request that triggered an Error
+      console.error('signupDoctor other error:', error);
       throw new Error(error.message);
     }
   }
@@ -38,23 +40,19 @@ export const signinDoctor = async (credentials) => {
       if (data.twoFAQRCode) {
         return {
           ...data,
-          twoFAQRCode: data.twoFAQRCode, // Include the QR code in the returned object
+          twoFAQRCode: data.twoFAQRCode,
         };
       }
-      return data; // Return the data (which may or may not include a token)
+      return data;
     } else {
-      throw new Error(data.message || 'Login failed'); // Improved error message
+      throw new Error(data.message || 'Login failed');
     }
   } catch (error) {
     if (error.response) {
-      // The request was made and the server responded with a status code
-      // that falls out of the range of 2xx
       throw new Error(error.response.data.message || 'Login failed');
     } else if (error.request) {
-      // The request was made but no response was received
       throw new Error('No response from server');
     } else {
-      // Something happened in setting up the request that triggered an Error
       throw new Error(error.message);
     }
   }
