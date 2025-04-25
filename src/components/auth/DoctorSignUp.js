@@ -13,6 +13,8 @@ import {
 }
 from 'mdb-react-ui-kit';
 
+import { signupDoctor } from '../../services/Api';
+
 function DoctorSignUp() {
   return (
     <MDBContainer fluid>
