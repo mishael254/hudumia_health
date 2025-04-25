@@ -23,7 +23,9 @@ CREATE TABLE health_programs (
 --creating a table to store clients
 CREATE TABLE clients (
     id SERIAL PRIMARY KEY,
-    full_name VARCHAR(100) NOT NULL,
+    first_name VARCHAR(20) NOT NULL,
+    second_name VARCHAR(20) NOT NULL,
+    sir_name VARCHAR(20) NOT NULL,
     gender VARCHAR(10),
     date_of_birth DATE,
     phone_number VARCHAR(20) UNIQUE,
