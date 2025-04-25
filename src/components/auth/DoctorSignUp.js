@@ -8,11 +8,11 @@ import {
   MDBCardBody,
   MDBCardImage,
   MDBInput,
-  
   MDBCheckbox,
   MDBTypography
 } from 'mdb-react-ui-kit';
 import { signupDoctor } from '../../services/Api';
+import { useNavigate } from 'react-router-dom';
 
 function DoctorSignUp() {
   const [firstName, setFirstName] = useState('');
@@ -24,10 +24,24 @@ function DoctorSignUp() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
+  const navigate = useNavigate();
+
+  const resetForm = () => {
+    setFirstName('');
+    setSecondName('');
+    setUserName('');
+    setEmail('');
+    setPhoneNumber('');
+    setPassword('');
+    setConfirmPassword('');
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setErrorMessage('');
+    setSuccessMessage('');
 
     if (password !== confirmPassword) {
       setErrorMessage('Passwords do not match');
@@ -47,14 +61,18 @@ function DoctorSignUp() {
     try {
       const data = await signupDoctor(doctorData);
       console.log('Signup successful:', data);
-      // Handle success (e.g., show success message, redirect)
-      if (data.twoFAQRCode) {
-        console.log('2FA QR Code:', data.twoFAQRCode);
-        // Display the QR code in your UI
-      }
+      setSuccessMessage(data.message);
+
+      // Delay resetForm only on success
+      setTimeout(() => {
+        resetForm();
+        navigate('/login');
+      }, 2000);
     } catch (error) {
       console.error('Signup error:', error);
       setErrorMessage(error.message || 'Signup failed. Please try again.');
+      resetForm(); // Clear form on error
+      setIsSubmitting(false); // Ensure isSubmitting is set to false in catch
     } finally {
       setIsSubmitting(false);
     }
@@ -74,7 +92,7 @@ function DoctorSignUp() {
                   style={{ borderTopLeftRadius: '15px', borderBottomLeftRadius: '15px', height: '100%', objectFit: 'cover' }}
                 />
               </MDBCol>
-              
+
               <MDBCol md="6">
                 <MDBCardBody className="p-5">
                   <div className="text-center mb-4">
@@ -87,6 +105,11 @@ function DoctorSignUp() {
                   {errorMessage && (
                     <div className="alert alert-danger mb-4" role="alert">
                       {errorMessage}
+                    </div>
+                  )}
+                  {successMessage && (
+                    <div className="alert alert-success mb-4" role="alert">
+                      {successMessage}
                     </div>
                   )}
 
