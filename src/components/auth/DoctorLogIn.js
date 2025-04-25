@@ -11,31 +11,41 @@ import {
   MDBTypography,
   MDBCheckbox
 } from 'mdb-react-ui-kit';
-import { signinDoctor } from '../../services/Api'; // You'll need to create this API function
+import { signinDoctor } from '../../services/Api'; // Ensure this function handles the QR code
 
 function DoctorLogIn() {
-  const [identifier, setIdentifier] = useState(''); // Changed from email to identifier
+  const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
-  const [token, setToken] = useState(''); // Added for 2FA token
+  const [token, setToken] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
+  const [twoFAQRCode, setTwoFAQRCode] = useState(''); // State to store the QR code
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
     setErrorMessage('');
+    setTwoFAQRCode(''); // Clear any previous QR code
 
     try {
       const credentials = {
-        identifier, // Use identifier (can be email or username)
+        identifier,
         password,
-        token, // Include the 2FA token
+        token,
         rememberMe
       };
       const data = await signinDoctor(credentials);
       console.log('Login successful:', data);
       // Handle successful login (redirect, store token, etc.)
+      if (data.twoFAQRCode) {
+        console.log('2FA QR Code received:', data.twoFAQRCode);
+        setTwoFAQRCode(data.twoFAQRCode); // Store the QR code in state
+      } else {
+        // Proceed with normal login flow if no QR code is present
+        // e.g., redirect to dashboard
+        console.log('No 2FA QR code received.');
+      }
     } catch (error) {
       console.error('Login error:', error);
       setErrorMessage(error.message || 'Invalid credentials. Please try again.');
@@ -77,9 +87,9 @@ function DoctorLogIn() {
                   <form onSubmit={handleSubmit}>
                     <div className="mb-4">
                       <MDBInput
-                        label="Email or Username" // Updated label
+                        label="Email or Username"
                         id="identifier"
-                        type="text" // Changed to text to accept both
+                        type="text"
                         value={identifier}
                         onChange={(e) => setIdentifier(e.target.value)}
                         required
@@ -111,6 +121,13 @@ function DoctorLogIn() {
                       />
                     </div>
 
+                    {twoFAQRCode && (
+                      <div className="text-center mb-4">
+                        <p className="text-muted mb-2">Scan this QR code with your authenticator app:</p>
+                        <img src={twoFAQRCode} alt="2FA QR Code" />
+                      </div>
+                    )}
+
                     <div className="mb-4 d-flex justify-content-between">
                       <MDBCheckbox
                         name="rememberMe"
@@ -118,7 +135,7 @@ function DoctorLogIn() {
                         label="Remember me"
                         checked={rememberMe}
                         onChange={(e) => setRememberMe(e.target.checked)}
-                        />
+                      />
                       <a href="#!" style={{ color: '#3b71ca' }}>Forgot password?</a>
                     </div>
 
@@ -141,7 +158,7 @@ function DoctorLogIn() {
 
                     <div className="text-center">
                       <p className="mb-0">
-                        Don't have an account? <a href="/doctor/signup" style={{ color: '#3b71ca' }}>Sign up</a>
+                        Don't have an account? <a href="/signup" style={{ color: '#3b71ca' }}>Sign up</a>
                       </p>
                     </div>
                   </form>
