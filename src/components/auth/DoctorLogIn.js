@@ -14,8 +14,9 @@ import {
 import { signinDoctor } from '../../services/Api'; // You'll need to create this API function
 
 function DoctorLogIn() {
-  const [email, setEmail] = useState('');
+  const [identifier, setIdentifier] = useState(''); // Changed from email to identifier
   const [password, setPassword] = useState('');
+  const [token, setToken] = useState(''); // Added for 2FA token
   const [errorMessage, setErrorMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
@@ -26,13 +27,18 @@ function DoctorLogIn() {
     setErrorMessage('');
 
     try {
-      const credentials = { email, password, rememberMe };
+      const credentials = {
+        identifier, // Use identifier (can be email or username)
+        password,
+        token, // Include the 2FA token
+        rememberMe
+      };
       const data = await signinDoctor(credentials);
       console.log('Login successful:', data);
       // Handle successful login (redirect, store token, etc.)
     } catch (error) {
       console.error('Login error:', error);
-      setErrorMessage(error.message || 'Invalid email or password. Please try again.');
+      setErrorMessage(error.message || 'Invalid credentials. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -71,11 +77,11 @@ function DoctorLogIn() {
                   <form onSubmit={handleSubmit}>
                     <div className="mb-4">
                       <MDBInput
-                        label="Email Address"
-                        id="email"
-                        type="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
+                        label="Email or Username" // Updated label
+                        id="identifier"
+                        type="text" // Changed to text to accept both
+                        value={identifier}
+                        onChange={(e) => setIdentifier(e.target.value)}
                         required
                         className="rounded-5"
                       />
@@ -88,6 +94,18 @@ function DoctorLogIn() {
                         type="password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
+                        required
+                        className="rounded-5"
+                      />
+                    </div>
+
+                    <div className="mb-4">
+                      <MDBInput
+                        label="2FA Token"
+                        id="token"
+                        type="text"
+                        value={token}
+                        onChange={(e) => setToken(e.target.value)}
                         required
                         className="rounded-5"
                       />
@@ -123,7 +141,7 @@ function DoctorLogIn() {
 
                     <div className="text-center">
                       <p className="mb-0">
-                        Don't have an account? <a href="/signup" style={{ color: '#3b71ca' }}>Sign up</a>
+                        Don't have an account? <a href="/doctor/signup" style={{ color: '#3b71ca' }}>Sign up</a>
                       </p>
                     </div>
                   </form>
