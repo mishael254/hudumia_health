@@ -1,6 +1,7 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const SECRET = 'your_jwt_secret'; // Replace with env variable in production
+require ('dotenv').config();
+const SECRET = process.env.JWT_SECRET; // Replace with env variable in production
 
 const hashPassword = async (password) => {
   const saltRounds = 10;
