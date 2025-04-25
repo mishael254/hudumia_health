@@ -1,6 +1,6 @@
 const jwt = require ('jsonwebtoken');
 const pool = require ('../hudumiadb');
-
+require('dotenv').config();
 const authenticateDoctor = async (req, res, next) => {
     const authHeader = req.headers.authorization;
 
