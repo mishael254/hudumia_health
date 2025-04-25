@@ -1,22 +1,52 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Link } from 'react-router-dom';
+import AppRoutes from './Routes'; // Import the AppRoutes component
 
-function App() {
-  const [status, setStatus] = useState("");
+const App = () => {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
-    axios
-      .get("http://localhost:3004/api/health-check")
-      .then((res) => setStatus(res.data.status))
-      .catch((err) => setStatus("Backend unreachable"));
+    const token = localStorage.getItem('token');
+    if (token) {
+      setIsAuthenticated(true);
+    }
   }, []);
 
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    setIsAuthenticated(false);
+  };
+
   return (
-    <div className="App">
-      <h1>hudumia app works</h1>
-      <p>Backend status: {status}</p>
-    </div>
+    <Router>
+      <div>
+        {/* Navbar */}
+        <nav>
+          <ul>
+            <li>
+              <Link to="/login">Login</Link>
+            </li>
+            <li>
+              <Link to="/signup">Signup</Link>
+            </li>
+            {isAuthenticated && (
+              <>
+                <li>
+                  <Link to="/dashboard">Dashboard</Link>
+                </li>
+                <li>
+                  <button onClick={handleLogout}>Logout</button>
+                </li>
+              </>
+            )}
+          </ul>
+        </nav>
+
+        {/* Routes */}
+        <AppRoutes isAuthenticated={isAuthenticated} setIsAuthenticated={setIsAuthenticated} />
+      </div>
+    </Router>
   );
-}
+};
 
 export default App;
