@@ -12,6 +12,8 @@ const { generate2FASecret } = require('./utils/2fa');
 
 const { verify2FAToken } = require('./utils/2fa');
 
+const authenticateDoctor = require('./middleware/authMiddleware');
+
 // Middleware
 app.use(cors()); // allow frontend to access backend
 app.use(express.json()); // allow JSON parsing
@@ -100,7 +102,7 @@ app.post('/api/doctors/signin', async (req, res) => {
 
 
 // Create a new health program
-app.post('/api/programs', async (req, res) => {
+app.post('/api/programs',authenticateDoctor, async (req, res) => {
   const { name, description } = req.body;
   try {
       const result = await pool.query(
@@ -114,7 +116,7 @@ app.post('/api/programs', async (req, res) => {
   }
 });
 // Get a list of all health programs
-app.get('/api/programs', async (req, res) => {
+app.get('/api/programs',authenticateDoctor, async (req, res) => {
   try {
       const result = await pool.query('SELECT * FROM health_programs');
       res.json(result.rows);
@@ -125,7 +127,7 @@ app.get('/api/programs', async (req, res) => {
 });
 
 //Get details of a specific health program
-app.get('/api/programs/:id', async (req, res) => {
+app.get('/api/programs/:id', authenticateDoctor, async (req, res) => {
     const { id } = req.params;
     try {
         const result = await pool.query('SELECT * FROM health_programs WHERE id = $1', [id]);
@@ -139,7 +141,7 @@ app.get('/api/programs/:id', async (req, res) => {
     }
 });
 // Update an existing health program
-app.put('/api/programs/:id', async (req, res) => {
+app.put('/api/programs/:id', authenticateDoctor, async (req, res) => {
   const { id } = req.params;
   const { name, description } = req.body;
   try {
@@ -157,7 +159,7 @@ app.put('/api/programs/:id', async (req, res) => {
   }
 });
 // Delete a health program
-app.delete('/api/programs/:id', async (req, res) => {
+app.delete('/api/programs/:id', authenticateDoctor, async (req, res) => {
   const { id } = req.params;
   try {
       const result = await pool.query('DELETE FROM health_programs WHERE id = $1 RETURNING *', [id]);
