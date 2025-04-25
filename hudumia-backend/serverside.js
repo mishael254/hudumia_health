@@ -14,6 +14,9 @@ const { verify2FAToken } = require('./utils/2fa');
 
 const authenticateDoctor = require('./middleware/authMiddleware');
 
+const crypto = require('crypto');
+const transporter = require('./utils/emailConfig');
+
 // Middleware
 app.use(cors()); // allow frontend to access backend
 app.use(express.json()); // allow JSON parsing
@@ -98,19 +101,73 @@ app.post('/api/doctors/signin', async (req, res) => {
   }
 });
 
+//doctors if forgot password
+
+// initiating a password reset
+app.post('/api/doctors/forgot-password', async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+      return res.status(400).json({ error: 'Email is required' });
+  }
+
+  try {
+      const doctor = await pool.query('SELECT id, email FROM doctors WHERE email = $1', [email]);
+
+      if (doctor.rows.length === 0) {
+          return res.json({ message: 'Password reset email sent if the account exists' });
+      }
+
+      const resetToken = crypto.randomBytes(20).toString('hex');
+      const resetTokenExpiry = new Date(Date.now() + 3600000);
+
+      await pool.query(
+          'UPDATE doctors SET reset_token = $1, reset_token_expiry = $2 WHERE id = $3',
+          [resetToken, resetTokenExpiry, doctor.rows[0].id]
+      );
+
+      const resetLink = `https://your-frontend-domain.com/reset-password?token=${resetToken}&email=${email}`;
+
+      const mailOptions = {
+          from: process.env.EMAIL_USER,
+          to: doctor.rows[0].email,
+          subject: 'Hudumia Health - Password Reset Request',
+          html: `<p>You are receiving this email because you (or someone else) have requested a password reset for your account.</p>
+                 <p>Please click on the following link to reset your password:</p>
+                 <a href="${resetLink}">${resetLink}</a>
+                 <p>This link will expire in 1 hour.</p>
+                 <p>If you did not request this, please ignore this email and your password will remain unchanged.</p>`,
+      };
+
+      transporter.sendMail(mailOptions, (error, info) => {
+          if (error) {
+              console.error('Error sending reset email:', error);
+              return res.status(500).json({ error: 'Failed to send password reset email' });
+          }
+          console.log('Password reset email sent:', info.response);
+          res.json({ message: 'Password reset email sent if the account exists' });
+      });
+
+  } catch (error) {
+      console.error('Error processing forgot password request:', error);
+      res.status(500).json({ error: 'Failed to process password reset request' });
+  }
+});
+
+
 //doctors reset password
 
 app.post('/api/doctors/reset-password', async (req, res) => {
-  const { token, email, newPassword } = req.body;
+  const { token, newPassword } = req.body;
 
-  if (!token || !email || !newPassword) {
-      return res.status(400).json({ error: 'Token, email, and new password are required' });
+  if (!token || !newPassword) {
+      return res.status(400).json({ error: 'Token and new password are required' });
   }
 
   try {
       const doctor = await pool.query(
-          'SELECT id FROM doctors WHERE email = $1 AND reset_token = $2 AND reset_token_expiry > NOW()',
-          [email, token]
+          'SELECT id FROM doctors WHERE reset_token = $1 AND reset_token_expiry > NOW()',
+          [token]
       );
 
       if (doctor.rows.length === 0) {
@@ -131,7 +188,6 @@ app.post('/api/doctors/reset-password', async (req, res) => {
       res.status(500).json({ error: 'Failed to reset password' });
   }
 });
-
 // --------------------- Health Programs Routes ---------------------
 
 
