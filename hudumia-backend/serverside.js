@@ -175,11 +175,11 @@ app.delete('/api/programs/:id', async (req, res) => {
 
 // Create a new client
 app.post('/api/clients', async (req, res) => {
-  const { full_name, gender, date_of_birth, phone_number } = req.body;
+  const { first_name,second_name, sir_name, gender, date_of_birth, phone_number } = req.body;
   try {
       const result = await pool.query(
-          'INSERT INTO clients (full_name, gender, date_of_birth, phone_number) VALUES ($1, $2, $3, $4) RETURNING *',
-          [full_name, gender, date_of_birth, phone_number]
+          'INSERT INTO clients (first_name, second_name, sir_name, gender, date_of_birth, phone_number) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
+          [first_name,second_name,sir_name, gender, date_of_birth, phone_number]
       );
       res.status(201).json(result.rows[0]);
   } catch (error) {
@@ -214,11 +214,11 @@ app.get('/api/clients/:id', async (req, res) => {
 // Update an existing client's information
 app.put('/api/clients/:id', async (req, res) => {
   const { id } = req.params;
-  const { full_name, gender, date_of_birth, phone_number } = req.body;
+  const { first_name, second_name, sir_name, gender, date_of_birth, phone_number } = req.body;
   try {
       const result = await pool.query(
-          'UPDATE clients SET full_name = $1, gender = $2, date_of_birth = $3, phone_number = $4, updated_at = NOW() WHERE id = $5 RETURNING *',
-          [full_name, gender, date_of_birth, phone_number, id]
+          'UPDATE clients SET first_name = $1, second_name = $2, sir_name = $3, gender = $4, date_of_birth = $5, phone_number = $6, updated_at = NOW() WHERE id = $7 RETURNING *',
+          [first_name, second_name , sir_name ,  gender, date_of_birth, phone_number, id]
       );
       if (result.rows.length === 0) {
           return res.status(404).json({ error: 'Client not found' });
