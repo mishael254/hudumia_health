@@ -98,6 +98,40 @@ app.post('/api/doctors/signin', async (req, res) => {
   }
 });
 
+//doctors reset password
+
+app.post('/api/doctors/reset-password', async (req, res) => {
+  const { token, email, newPassword } = req.body;
+
+  if (!token || !email || !newPassword) {
+      return res.status(400).json({ error: 'Token, email, and new password are required' });
+  }
+
+  try {
+      const doctor = await pool.query(
+          'SELECT id FROM doctors WHERE email = $1 AND reset_token = $2 AND reset_token_expiry > NOW()',
+          [email, token]
+      );
+
+      if (doctor.rows.length === 0) {
+          return res.status(400).json({ error: 'Invalid or expired reset token' });
+      }
+
+      const hashedPassword = await hashPassword(newPassword);
+
+      await pool.query(
+          'UPDATE doctors SET password_hash = $1, reset_token = NULL, reset_token_expiry = NULL WHERE id = $2',
+          [hashedPassword, doctor.rows[0].id]
+      );
+
+      res.json({ message: 'Password reset successfully' });
+
+  } catch (error) {
+      console.error('Error resetting password:', error);
+      res.status(500).json({ error: 'Failed to reset password' });
+  }
+});
+
 // --------------------- Health Programs Routes ---------------------
 
 
