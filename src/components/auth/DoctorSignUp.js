@@ -33,6 +33,28 @@ function DoctorSignUp() {
       setErrorMessage('Passwords do not match');
       return;
     }
+    const doctorData = {
+        firstName,
+        secondName,
+        userName,
+        email,
+        phoneNumber,
+        password,
+      };
+  
+      try {
+        const data = await signupDoctor(doctorData);
+        console.log('Signup successful:', data);
+        // Handle success (e.g., show success message, redirect)
+        if (data.twoFAQRCode) {
+          console.log('2FA QR Code:', data.twoFAQRCode);
+          // Display the QR code in your UI
+        }
+      } catch (error) {
+        console.error('Signup error:', error);
+        setErrorMessage(error.message);
+      }
+    };
 
 
 
