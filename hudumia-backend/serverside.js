@@ -293,20 +293,39 @@ app.get('/api/clients', async (req, res) => {
 // --------------------- implementing Client Search Route ---------------------
 
 app.get('/api/clients/search', async (req, res) => {
-  const { name } = req.query;
+  const { name, phoneNumber, dateOfBirth } = req.query;
+  const conditions = [];
+  const values = [];
+  let query = `
+      SELECT id, first_name, second_name, sir_name, gender, date_of_birth, phone_number, registration_date
+      FROM clients
+  `;
+  let paramIndex = 1;
 
-  if (!name) {
-      return res.status(400).json({ error: 'Search term is required' });
+  if (name) {
+      conditions.push(`(first_name ILIKE $${paramIndex} OR second_name ILIKE $${paramIndex} OR sir_name ILIKE $${paramIndex})`);
+      values.push(`%${name}%`);
+      paramIndex++;
+  }
+
+  if (phoneNumber) {
+      conditions.push(`phone_number ILIKE $${paramIndex}`);
+      values.push(`%${phoneNumber}%`);
+      paramIndex++;
+  }
+
+  if (dateOfBirth) {
+      conditions.push(`date_of_birth::TEXT LIKE $${paramIndex}`);
+      values.push(`%${dateOfBirth}%`);
+      paramIndex++;
+  }
+
+  if (conditions.length > 0) {
+      query += ` WHERE ${conditions.join(' AND ')}`;
   }
 
   try {
-      // Using ILIKE for case-insensitive partial matching
-      const result = await pool.query(
-          `SELECT id, first_name, second_name, sir_name, gender, date_of_birth, phone_number, registration_date
-           FROM clients
-           WHERE first_name ILIKE $1 OR second_name ILIKE $1 OR sir_name ILIKE $1`,
-          [`%${name}%`]
-      );
+      const result = await pool.query(query, values);
       res.json(result.rows);
   } catch (error) {
       console.error('Error searching clients:', error);
