@@ -1,70 +1,150 @@
-# Getting Started with Create React App
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# Hudumia Health App
 
-## Available Scripts
+Hudumia Health is a **fullstack health management platform** that enables doctors to manage health programs, enroll clients into those programs, and track their progress efficiently.
 
-In the project directory, you can run:
+Built with:
+- **Backend:** Node.js, Express, PostgreSQL
+- **Frontend:** React.js
+- **Other Libraries:** Material UI, MDBReact, JWT Authentication, Bcrypt, dotenv
 
-### `npm start`
+---
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## Project Structure
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+```
+HUDUMIA_HEALTH/
+├── huduma-backend/
+│   ├── middleware/
+│   │   └── authMiddleware.js
+│   ├── utils/
+│   │   ├── 2fa.js
+│   │   ├── auth.js
+│   │   ├── emailConfig.js
+│   ├── .env
+│   ├── hudumiadb.js
+│   ├── package.json
+│   ├── schema.sql
+│   └── serverside.js
+├── public/
+│   └── index.html
+├── src/
+│   ├── components/
+│   │   ├── auth/
+│   │   │   ├── DoctorLogin.js
+│   │   │   └── DoctorSignUp.js
+│   │   └── dashboard/
+│   │       └── Dashboard.js
+│   ├── services/
+│   │   └── Api.js
+│   ├── App.js
+│   ├── index.js
+│   ├── Routes.js
+├── package.json
+└── README.md
+```
 
-### `npm test`
+---
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## Features
 
-### `npm run build`
+### Authentication
+- **Doctor Signup** and **Login** with JWT Authentication.
+- Passwords are hashed securely using **bcrypt**.
+- **2FA (Two Factor Authentication)** support prepared for future extension.
+- JWT tokens stored securely in local storage.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### Doctor Dashboard
+- View and manage health programs.
+- View and manage enrolled clients.
+- Search for clients.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### Programs Management
+- Create new health programs (e.g., Malaria, HIV, TB Programs).
+- Edit, view and delete health programs.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### Client Management
+- Register new clients.
+- Enroll clients into one or more health programs.
+- Edit and delete client profiles.
 
-### `npm run eject`
+---
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+## How to Run
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+### 1. Backend Setup
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+```bash
+cd huduma-backend
+npm install
+# Create a .env file with:
+# JWT_SECRET=your_secret_key
+# DB connection details
+npm start
+```
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+- Backend runs on **http://localhost:3004**.
 
-## Learn More
+---
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+### 2. Frontend Setup
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+```bash
+cd ..
+npm install
+npm start
+```
 
-### Code Splitting
+- Frontend runs on **http://localhost:3000**.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+---
 
-### Analyzing the Bundle Size
+## Environment Variables (.env)
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+**Backend .env example:**
 
-### Making a Progressive Web App
+```
+PORT=3004
+JWT_SECRET=your_super_secret_key
+DB_USER=your_db_user
+DB_PASSWORD=your_db_password
+DB_HOST=localhost
+DB_PORT=5432
+DB_DATABASE=hudumia_health_db
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+---
 
-### Advanced Configuration
+## API Endpoints
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+| Method | Route                  | Description                   |
+|--------|-------------------------|-------------------------------|
+| POST   | /api/doctors/signup      | Register a doctor             |
+| POST   | /api/doctors/login       | Doctor login                  |
+| GET    | /api/programs            | Get all health programs       |
+| POST   | /api/programs            | Create a new program          |
+| GET    | /api/clients             | Get all clients               |
+| POST   | /api/clients             | Register a new client         |
+| POST   | /api/enrollments         | Enroll a client in programs   |
 
-### Deployment
+*(All protected routes require Bearer Token authentication)*
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+---
 
-### `npm run build` fails to minify
+## Future Improvements
+- Add patient follow-up tracking.
+- Implement 2FA (fully).
+- Admin panel and doctor profile customization.
+- Email notifications using nodemailer.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+---
+
+## Screenshots (Optional)
+Add later after you design your UI.
+
+---
+
+## License
+This project is licensed under the **MIT License**.
+
+---
