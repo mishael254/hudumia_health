@@ -197,6 +197,31 @@ app.get('/api/clients', async (req, res) => {
       res.status(500).json({ error: 'Failed to fetch clients' });
   }
 });
+
+// --------------------- implementing Client Search Route ---------------------
+
+app.get('/api/clients/search', async (req, res) => {
+  const { name } = req.query;
+
+  if (!name) {
+      return res.status(400).json({ error: 'Search term is required' });
+  }
+
+  try {
+      // Using ILIKE for case-insensitive partial matching
+      const result = await pool.query(
+          `SELECT id, first_name, second_name, sir_name, gender, date_of_birth, phone_number, registration_date
+           FROM clients
+           WHERE first_name ILIKE $1 OR second_name ILIKE $1 OR sir_name ILIKE $1`,
+          [`%${name}%`]
+      );
+      res.json(result.rows);
+  } catch (error) {
+      console.error('Error searching clients:', error);
+      res.status(500).json({ error: 'Failed to search clients' });
+  }
+});
+
 // Get details of a specific client
 app.get('/api/clients/:id', async (req, res) => {
   const { id } = req.params;
@@ -280,29 +305,7 @@ app.get('/api/clients/:clientId/enrollments', async (req, res) => {
   }
 });
 
-// --------------------- implementing Client Search Route ---------------------
 
-app.get('/api/clients/search', async (req, res) => {
-  const { name } = req.query;
-
-  if (!name) {
-      return res.status(400).json({ error: 'Search term is required' });
-  }
-
-  try {
-      // Using ILIKE for case-insensitive partial matching
-      const result = await pool.query(
-          `SELECT id, first_name, second_name, sir_name, gender, date_of_birth, phone_number, registration_date
-           FROM clients
-           WHERE first_name ILIKE $1 OR second_name ILIKE $1 OR sir_name ILIKE $1`,
-          [`%${name}%`]
-      );
-      res.json(result.rows);
-  } catch (error) {
-      console.error('Error searching clients:', error);
-      res.status(500).json({ error: 'Failed to search clients' });
-  }
-});
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
