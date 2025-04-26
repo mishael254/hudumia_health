@@ -25,7 +25,7 @@ function DoctorSignUp() {
   const [errorMessage, setErrorMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
-  const [twoFAQRCode, setTwoFAQRCode] = useState(null); // QR code state
+  const [twoFAQRCode, setTwoFAQRCode] = useState(null);
   const [showQRCodeOverlay, setShowQRCodeOverlay] = useState(false);
   const navigate = useNavigate();
 
@@ -43,12 +43,13 @@ function DoctorSignUp() {
     e.preventDefault();
     setIsSubmitting(true);
     setErrorMessage('');
-    setSuccessMessage('');
+    setSuccessMessage('Loading...'); // Set initial loading message
     setTwoFAQRCode(null);
 
     if (password !== confirmPassword) {
       setErrorMessage('Passwords do not match');
       setIsSubmitting(false);
+      setSuccessMessage(''); // Clear loading message
       return;
     }
 
@@ -64,22 +65,29 @@ function DoctorSignUp() {
     try {
       const data = await signupDoctor(doctorData);
       console.log('Signup successful:', data);
-      setSuccessMessage(data.message);
+      setSuccessMessage('Registration successful! Redirecting...'); // Update success message
 
       if (data.twoFAQRCode) {
-        setTwoFAQRCode(data.twoFAQRCode); // show QR code
+        setTwoFAQRCode(data.twoFAQRCode);
         setShowQRCodeOverlay(true);
+      } else {
+        // Delay navigation to login
+        setTimeout(() => {
+          resetForm();
+          navigate('/login');
+        }, 2000);
       }
-
     } catch (error) {
       console.error('Signup error:', error);
       setErrorMessage(error.message || 'Signup failed. Please try again.');
       resetForm();
       setIsSubmitting(false);
+      setSuccessMessage(''); // Clear loading message
     } finally {
-      setIsSubmitting(false);
+      setIsSubmitting(false); // Keep isSubmitting false here to allow message to display
     }
   };
+
   const handleNext = () => {
     setShowQRCodeOverlay(false);
     resetForm();
@@ -266,7 +274,8 @@ function DoctorSignUp() {
         >
           <h2>Two-Factor Authentication Setup</h2>
           <p style={{ maxWidth: '500px', marginBottom: '20px' }}>
-            Please scan the QR code below using Google Authenticator or any TOTP app. If you don't have one, install Google Authenticator from the app store.
+            Please scan the QR code below using Google Authenticator or any TOTP app. If you
+            don't have one, install Google Authenticator from the app store.
           </p>
           <img src={twoFAQRCode} alt="2FA QR Code" style={{ width: '200px', height: '200px', marginBottom: '20px' }} />
           <MDBBtn onClick={handleNext} color="light" className="rounded-5">
