@@ -171,9 +171,6 @@ ppt format
 
 ---
 
-Landing page
-
-![Hudumia Health Login](public/screenshots/landing.png)
 
 ---
 
