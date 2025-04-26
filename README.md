@@ -161,13 +161,15 @@ Landing page
 ## Presentations
 pdf format
 
-![Hudumia Health Signup](public/presentations/hudumia%20health%20presentation.pdf)
+![Hudumia Health Signup](https://drive.google.com/file/d/1FllWCgy-LcI-3JclSCfnj8G7DkgOac2S/view?usp=drive_link)
+
+
 
 ---
 
 ppt format
 
-![Hudumia Health Login](public/presentations/hudumia%20health%20presentation.pptx)
+![Hudumia Health Login](https://docs.google.com/presentation/d/1JTPBRn231fQgzQI42mr75SlP0aqtd0io/edit?usp=drive_link&ouid=118002078082822015260&rtpof=true&sd=true)
 
 ---
 
