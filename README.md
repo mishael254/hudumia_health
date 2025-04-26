@@ -142,19 +142,19 @@ DB_DATABASE=hudumia_health_db
 ## Screenshots (Optional)
 sign up 
 
-![Hudumia Health Signup](public/signup.png)
+![Hudumia Health Signup](public/screenshots/signup.png)
 
 ---
 
 log in 
 
-![Hudumia Health Login](public/login.png)
+![Hudumia Health Login](public/screenshots/login.png)
 
 ---
 
 Landing page
 
-![Hudumia Health Login](public/landing.png)
+![Hudumia Health Login](public/screenshots/landing.png)
 
 ---
 
