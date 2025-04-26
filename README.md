@@ -140,7 +140,21 @@ DB_DATABASE=hudumia_health_db
 ---
 
 ## Screenshots (Optional)
-Add later after you design your UI.
+sign up 
+
+![Hudumia Health Signup](public/signup.png)
+
+---
+
+log in 
+
+![Hudumia Health Login](public/login.png)
+
+---
+
+Landing page
+
+![Hudumia Health Login](public/landing.png)
 
 ---
 
