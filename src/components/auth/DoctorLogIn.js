@@ -12,6 +12,7 @@ import {
   MDBCheckbox
 } from 'mdb-react-ui-kit';
 import { signinDoctor } from '../../services/Api'; // Ensure this function handles the QR code
+import { useNavigate } from 'react-router-dom';
 
 function DoctorLogIn() {
   const [identifier, setIdentifier] = useState('');
@@ -20,13 +21,21 @@ function DoctorLogIn() {
   const [errorMessage, setErrorMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
-  const [twoFAQRCode, setTwoFAQRCode] = useState(''); // State to store the QR code
+  const [successMessage, setSuccessMessage] = useState(''); // Added success message
+  const navigate = useNavigate();
+
+    const resetForm = () => {
+        setIdentifier('');
+        setPassword('');
+        setToken('');
+        setRememberMe(false);
+    };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
     setErrorMessage('');
-    setTwoFAQRCode(''); // Clear any previous QR code
+    setSuccessMessage(''); // Clear message
 
     try {
       const credentials = {
@@ -38,17 +47,32 @@ function DoctorLogIn() {
       const data = await signinDoctor(credentials);
       console.log('Login successful:', data);
       // Handle successful login (redirect, store token, etc.)
-      if (data.twoFAQRCode) {
-        console.log('2FA QR Code received:', data.twoFAQRCode);
-        setTwoFAQRCode(data.twoFAQRCode); // Store the QR code in state
+      if (data.token) {
+        localStorage.setItem('token', data.token);
+        setSuccessMessage('Login successful!'); // Set success message
+        //  setIsAuthenticated(true);  //移到App.js
+        //  navigate('/dashboard');  //移到App.js // Remove immediate navigation
+
+        setTimeout(() => {
+          //  setIsAuthenticated(true);
+          navigate('/dashboard'); // Redirect after 2 seconds
+        }, 2000);
+      } else if (data.twoFAQRCode) {
+        setErrorMessage("Please enter the 2FA token sent to your email");
+        setIsSubmitting(false);
+        resetForm();
+        return;
       } else {
-        // Proceed with normal login flow if no QR code is present
-        // e.g., redirect to dashboard
-        console.log('No 2FA QR code received.');
+        setErrorMessage(data.message || 'Login failed. Please check your credentials.');
+        setIsSubmitting(false);
+        resetForm();
+        return;
       }
     } catch (error) {
       console.error('Login error:', error);
       setErrorMessage(error.message || 'Invalid credentials. Please try again.');
+      setIsSubmitting(false);
+      resetForm();
     } finally {
       setIsSubmitting(false);
     }
@@ -81,6 +105,11 @@ function DoctorLogIn() {
                   {errorMessage && (
                     <div className="alert alert-danger mb-4" role="alert">
                       {errorMessage}
+                    </div>
+                  )}
+                  {successMessage && (
+                    <div className="alert alert-success mb-4" role="alert">
+                      {successMessage}
                     </div>
                   )}
 
@@ -120,13 +149,6 @@ function DoctorLogIn() {
                         className="rounded-5"
                       />
                     </div>
-
-                    {twoFAQRCode && (
-                      <div className="text-center mb-4">
-                        <p className="text-muted mb-2">Scan this QR code with your authenticator app:</p>
-                        <img src={twoFAQRCode} alt="2FA QR Code" />
-                      </div>
-                    )}
 
                     <div className="mb-4 d-flex justify-content-between">
                       <MDBCheckbox
