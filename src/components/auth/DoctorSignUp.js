@@ -25,6 +25,8 @@ function DoctorSignUp() {
   const [errorMessage, setErrorMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
+  const [twoFAQRCode, setTwoFAQRCode] = useState(null); // QR code state
+  const [showQRCodeOverlay, setShowQRCodeOverlay] = useState(false);
   const navigate = useNavigate();
 
   const resetForm = () => {
@@ -42,6 +44,7 @@ function DoctorSignUp() {
     setIsSubmitting(true);
     setErrorMessage('');
     setSuccessMessage('');
+    setTwoFAQRCode(null);
 
     if (password !== confirmPassword) {
       setErrorMessage('Passwords do not match');
@@ -63,19 +66,24 @@ function DoctorSignUp() {
       console.log('Signup successful:', data);
       setSuccessMessage(data.message);
 
-      // Delay resetForm only on success
-      setTimeout(() => {
-        resetForm();
-        navigate('/login');
-      }, 2000);
+      if (data.twoFAQRCode) {
+        setTwoFAQRCode(data.twoFAQRCode); // show QR code
+        setShowQRCodeOverlay(true);
+      }
+
     } catch (error) {
       console.error('Signup error:', error);
       setErrorMessage(error.message || 'Signup failed. Please try again.');
-      resetForm(); // Clear form on error
-      setIsSubmitting(false); // Ensure isSubmitting is set to false in catch
+      resetForm();
+      setIsSubmitting(false);
     } finally {
       setIsSubmitting(false);
     }
+  };
+  const handleNext = () => {
+    setShowQRCodeOverlay(false);
+    resetForm();
+    navigate('/login');
   };
 
   return (
@@ -235,6 +243,37 @@ function DoctorSignUp() {
           </MDBCard>
         </MDBCol>
       </MDBRow>
+
+      {/* QR Code Display */}
+      {showQRCodeOverlay && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100vw',
+            height: '100vh',
+            backgroundColor: 'rgba(0,0,0,0.85)',
+            color: '#fff',
+            zIndex: 9999,
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            alignItems: 'center',
+            textAlign: 'center',
+            padding: '20px',
+          }}
+        >
+          <h2>Two-Factor Authentication Setup</h2>
+          <p style={{ maxWidth: '500px', marginBottom: '20px' }}>
+            Please scan the QR code below using Google Authenticator or any TOTP app. If you don't have one, install Google Authenticator from the app store.
+          </p>
+          <img src={twoFAQRCode} alt="2FA QR Code" style={{ width: '200px', height: '200px', marginBottom: '20px' }} />
+          <MDBBtn onClick={handleNext} color="light" className="rounded-5">
+            Next
+          </MDBBtn>
+        </div>
+      )}
 
       <style>
         {`
