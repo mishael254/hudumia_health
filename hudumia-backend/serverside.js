@@ -282,7 +282,7 @@ app.delete('/api/programs/:id', authenticateDoctor, async (req, res) => {
 // --------------------- Clients Routes ---------------------
 
 // Create a new client
-app.post('/api/clients', async (req, res) => {
+app.post('/api/clients', authenticateDoctor, async (req, res) => {
     const { first_name, second_name, sir_name, gender, date_of_birth, phone_number } = req.body;
     try {
       // Check if phone number already exists
@@ -306,7 +306,7 @@ app.post('/api/clients', async (req, res) => {
     }
 });
 // Get a list of all registered clients
-app.get('/api/clients', async (req, res) => {
+app.get('/api/clients', authenticateDoctor, async (req, res) => {
     try {
         const result = await pool.query('SELECT * FROM clients');
         res.json(result.rows);
@@ -318,7 +318,7 @@ app.get('/api/clients', async (req, res) => {
 
 // --------------------- implementing Client Search Route ---------------------
 
-app.get('/api/clients/search', async (req, res) => {
+app.get('/api/clients/search', authenticateDoctor, async (req, res) => {
     const { name, phoneNumber, dateOfBirth } = req.query;
     const conditions = [];
     const values = [];
@@ -360,7 +360,7 @@ app.get('/api/clients/search', async (req, res) => {
 });
 
 // Get details of a specific client
-app.get('/api/clients/:id', async (req, res) => {
+app.get('/api/clients/:id', authenticateDoctor, async (req, res) => {
     const { id } = req.params;
     try {
         const result = await pool.query('SELECT * FROM clients WHERE id = $1', [id]);
@@ -374,7 +374,7 @@ app.get('/api/clients/:id', async (req, res) => {
     }
 });
 // Update an existing client's information
-app.put('/api/clients/:id', async (req, res) => {
+app.put('/api/clients/:id', authenticateDoctor, async (req, res) => {
     const { id } = req.params;
     const { first_name, second_name, sir_name, gender, date_of_birth, phone_number } = req.body;
     try {
@@ -392,7 +392,7 @@ app.put('/api/clients/:id', async (req, res) => {
     }
 });
 // Delete a client
-app.delete('/api/clients/:id', async (req, res) => {
+app.delete('/api/clients/:id', authenticateDoctor, async (req, res) => {
     const { id } = req.params;
     try {
         const result = await pool.query('DELETE FROM clients WHERE id = $1 RETURNING *', [id]);
@@ -408,7 +408,7 @@ app.delete('/api/clients/:id', async (req, res) => {
 // --------------------- Program Enrollments Routes ---------------------
 
 // Enroll a client in a program
-app.post('/api/enrollments', async (req, res) => {
+app.post('/api/enrollments', authenticateDoctor, async (req, res) => {
     const { clientId, programId } = req.body;
     try {
         const result = await pool.query(
@@ -425,7 +425,7 @@ app.post('/api/enrollments', async (req, res) => {
     }
 });
 // Get all programs a specific client is enrolled in
-app.get('/api/clients/:clientId/enrollments', async (req, res) => {
+app.get('/api/clients/:clientId/enrollments', authenticateDoctor, async (req, res) => {
     const { clientId } = req.params;
     try {
         const result = await pool.query(
