@@ -5,6 +5,7 @@ import DoctorSignUp from '../components/auth/DoctorSignUp';// Adjust path if nee
 import DoctorLogin from '../components/auth/DoctorLogIn';   // Adjust path if needed
 import Dashboard from '../components/dashboard/Dashboard';     // Adjust
 import LandingPage from '../components/navbars/home/LandingPage';
+import ClientDashboard from '../components/dashboard/components/clients/ClientDashboard';
 const AppRoutes = ({ isAuthenticated, setIsAuthenticated }) => {
     return (
         <Routes>
@@ -18,6 +19,7 @@ const AppRoutes = ({ isAuthenticated, setIsAuthenticated }) => {
                 path="/dashboard"
                 element={isAuthenticated ? <Dashboard /> : <Navigate to="/login" />}
             />
+            <Route path="/clients" element={<ClientDashboard />} />
             
         </Routes>
     );
