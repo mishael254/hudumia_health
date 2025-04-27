@@ -1,9 +1,11 @@
 import { useState } from "react";
-import { ProSidebar, Menu, MenuItem } from "react-pro-sidebar";
+import { ProSidebar, Menu, MenuItem, SubMenu } from "react-pro-sidebar";
 import { Box, IconButton, Typography, useTheme } from "@mui/material";
 import { Link } from "react-router-dom";
 import "react-pro-sidebar/dist/css/styles.css";
 import { tokens } from "../../theme";
+
+// MUI Icons
 import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
 import PeopleOutlinedIcon from "@mui/icons-material/PeopleOutlined";
 import ContactsOutlinedIcon from "@mui/icons-material/ContactsOutlined";
@@ -12,20 +14,25 @@ import PersonOutlinedIcon from "@mui/icons-material/PersonOutlined";
 import CalendarTodayOutlinedIcon from "@mui/icons-material/CalendarTodayOutlined";
 import HelpOutlineOutlinedIcon from "@mui/icons-material/HelpOutlineOutlined";
 import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
+import AssessmentOutlinedIcon from "@mui/icons-material/AssessmentOutlined";
+import AssignmentOutlinedIcon from "@mui/icons-material/AssignmentOutlined";
+import BarChartOutlinedIcon from "@mui/icons-material/BarChartOutlined";
+import DashboardCustomizeOutlinedIcon from "@mui/icons-material/DashboardCustomizeOutlined";
 
 const Item = ({ title, to, icon, selected, setSelected }) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
-
   return (
     <MenuItem
       active={selected === title}
-      style={{ color: colors.grey[100] }}
+      style={{
+        color: colors.grey[100],
+      }}
       onClick={() => setSelected(title)}
       icon={icon}
-      component={<Link to={to} />}
     >
-      <Typography variant="body1">{title}</Typography>
+      <Typography>{title}</Typography>
+      <Link to={to} />
     </MenuItem>
   );
 };
@@ -39,7 +46,6 @@ const Sidebar = () => {
   return (
     <Box
       sx={{
-        height: "100%",
         "& .pro-sidebar-inner": {
           background: `${colors.primary[400]} !important`,
         },
@@ -47,37 +53,40 @@ const Sidebar = () => {
           backgroundColor: "transparent !important",
         },
         "& .pro-inner-item": {
-          padding: "8px 20px 8px 20px !important",
+          padding: "5px 35px 5px 20px !important",
         },
         "& .pro-inner-item:hover": {
-          color: `${colors.greenAccent[400]} !important`,
+          color: "#868dfb !important",
         },
         "& .pro-menu-item.active": {
-          color: `${colors.greenAccent[500]} !important`,
+          color: "#6870fa !important",
         },
-        transition: "all 0.3s",
       }}
     >
       <ProSidebar collapsed={isCollapsed}>
         <Menu iconShape="square">
-          {/* TOP SECTION */}
+          {/* Toggle Sidebar */}
           <MenuItem
             onClick={() => setIsCollapsed(!isCollapsed)}
             icon={<MenuOutlinedIcon />}
             style={{
               margin: "10px 0 20px 0",
               color: colors.grey[100],
-              textAlign: "center",
             }}
           >
             {!isCollapsed && (
-              <Typography variant="h3" color={colors.grey[100]}>
-                Hudumia Health
-              </Typography>
+              <Box display="flex" justifyContent="space-between" alignItems="center" ml="15px">
+                <Typography variant="p1" color={colors.grey[100]}>
+                  HUDUMIA-H
+                </Typography>
+                <IconButton onClick={() => setIsCollapsed(!isCollapsed)}>
+                  <MenuOutlinedIcon />
+                </IconButton>
+              </Box>
             )}
           </MenuItem>
 
-          {/* USER SECTION */}
+          {/* Profile Image */}
           {!isCollapsed && (
             <Box mb="25px" textAlign="center">
               <Box display="flex" justifyContent="center">
@@ -89,21 +98,13 @@ const Sidebar = () => {
                   style={{ cursor: "pointer", borderRadius: "50%" }}
                 />
               </Box>
-              <Typography
-                variant="h4"
-                color={colors.grey[100]}
-                fontWeight="bold"
-                sx={{ mt: "10px" }}
-              >
-                Daktari
-              </Typography>
-              <Typography variant="body2" color={colors.greenAccent[400]}>
-                Welcome Back!
+              <Typography variant="h6" color={colors.grey[100]} fontWeight="bold" mt="10px">
+                Welcome Daktari
               </Typography>
             </Box>
           )}
 
-          {/* MENU ITEMS */}
+          {/* Sidebar Menu */}
           <Box paddingLeft={isCollapsed ? undefined : "10%"}>
             <Item
               title="Dashboard"
@@ -113,58 +114,83 @@ const Sidebar = () => {
               setSelected={setSelected}
             />
 
-            <Typography
-              variant="h6"
-              color={colors.grey[300]}
-              sx={{ m: "15px 0 5px 20px" }}
-            >
-              Clients
-            </Typography>
-            <Item
-              title="Manage Clients"
-              to="/team"
-              icon={<PeopleOutlinedIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
-            <Item
-              title="Contacts Information"
-              to="/contacts"
-              icon={<ContactsOutlinedIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
-            <Item
-              title="Client Schedules"
-              to="/invoices"
-              icon={<ReceiptOutlinedIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
+            <SubMenu title="Clients" icon={<PeopleOutlinedIcon />}>
+              <Item
+                title="Manage Clients"
+                to="/team"
+                icon={<ContactsOutlinedIcon />}
+                selected={selected}
+                setSelected={setSelected}
+              />
+              <Item
+                title="Contacts Information"
+                to="/contacts"
+                icon={<ReceiptOutlinedIcon />}
+                selected={selected}
+                setSelected={setSelected}
+              />
+              <Item
+                title="Client Schedules"
+                to="/invoices"
+                icon={<CalendarTodayOutlinedIcon />}
+                selected={selected}
+                setSelected={setSelected}
+              />
+            </SubMenu>
 
-            <Typography
-              variant="h6"
-              color={colors.grey[300]}
-              sx={{ m: "15px 0 5px 20px" }}
-            >
-              Programs
-            </Typography>
+            <SubMenu title="Programs" icon={<AssignmentOutlinedIcon />}>
+              <Item
+                title="Create Program"
+                to="/create-program"
+                icon={<PersonOutlinedIcon />}
+                selected={selected}
+                setSelected={setSelected}
+              />
+              <Item
+                title="All Programs"
+                to="/programs"
+                icon={<DashboardCustomizeOutlinedIcon />}
+                selected={selected}
+                setSelected={setSelected}
+              />
+            </SubMenu>
+
+            <SubMenu title="Enrollments" icon={<AssessmentOutlinedIcon />}>
+              <Item
+                title="Enroll Client"
+                to="/enroll-client"
+                icon={<PersonOutlinedIcon />}
+                selected={selected}
+                setSelected={setSelected}
+              />
+              <Item
+                title="Manage Enrollments"
+                to="/manage-enrollments"
+                icon={<CalendarTodayOutlinedIcon />}
+                selected={selected}
+                setSelected={setSelected}
+              />
+            </SubMenu>
+
+            <SubMenu title="Reports" icon={<BarChartOutlinedIcon />}>
+              <Item
+                title="Client Reports"
+                to="/client-reports"
+                icon={<AssessmentOutlinedIcon />}
+                selected={selected}
+                setSelected={setSelected}
+              />
+              <Item
+                title="Program Reports"
+                to="/program-reports"
+                icon={<AssignmentOutlinedIcon />}
+                selected={selected}
+                setSelected={setSelected}
+              />
+            </SubMenu>
+
             <Item
-              title="Enroll Client"
-              to="/form"
-              icon={<PersonOutlinedIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
-            <Item
-              title="Calendar"
-              to="/calendar"
-              icon={<CalendarTodayOutlinedIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
-            <Item
-              title="FAQs"
+              title="FAQ"
               to="/faq"
               icon={<HelpOutlineOutlinedIcon />}
               selected={selected}

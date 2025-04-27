@@ -20,7 +20,7 @@ const Topbar = () => {
   const handleLogout = () => {
     localStorage.removeItem('hudumia_health_token'); // <-- Clear token
     navigate('/login'); // <-- Redirect to login
-    window.location.reload(); // <-- Optional: reload the page to reset states if needed
+    window.location.reload(); 
   };
 
   return (
