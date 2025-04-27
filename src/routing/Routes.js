@@ -9,7 +9,7 @@ import ClientDashboard from '../components/dashboard/components/clients/ClientDa
 import ProtectedRoute from './ProtectedRoute';
 import ClientTable from '../components/dashboard/components/clients/ClientTable';
 import ClientProfile from '../components/dashboard/components/clients/ClientProfile';
-
+import EditClient from '../components/dashboard/components/clients/EditClient';
 
 const AppRoutes = ({ isAuthenticated, setIsAuthenticated }) => {
   return (
@@ -58,7 +58,16 @@ const AppRoutes = ({ isAuthenticated, setIsAuthenticated }) => {
           </ProtectedRoute>
         } 
       />
+      <Route 
+        path="/edit-client/:clientId" 
+        element={
+          <ProtectedRoute isAuthenticated={isAuthenticated}>
+            <EditClient />
+          </ProtectedRoute>
+        } 
+      />
     </Routes>
+    
   );
 };
 

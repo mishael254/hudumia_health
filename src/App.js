@@ -10,7 +10,7 @@ const NavbarWrapper = ({ isAuthenticated }) => {
   const location = useLocation();
 
   // Define routes that belong to the dashboard section
-  const dashboardRoutes = ['/dashboard', '/clients','/clients-table','/clients-profile/', '/enroll-client', '/programs', '/settings'];
+  const dashboardRoutes = ['/dashboard', '/clients','/clients-table','/clients-profile/', '/edit-client/' ,'/enroll-client', '/programs', '/settings'];
 
   const isDashboardRoute = dashboardRoutes.some(route => location.pathname.startsWith(route));
 
