@@ -75,6 +75,10 @@ import {
     const toggleClientTable = () => {
       setShowClientTable(!showClientTable);
     };
+
+    const toggleCreateForm = () => {
+      setShowCreateForm(!showCreateForm);
+    };
   
     return (
       <div style={{ display: 'flex' }}>
