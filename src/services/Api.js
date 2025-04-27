@@ -179,6 +179,25 @@ export const createClient = async (clientData) => {
   }
 };
 
+// Get a single client by ID
+export const getClient = async (clientId) => {
+  try {
+    const authAxios = createAuthenticatedAxios();
+    const response = await authAxios.get(`/clients/${clientId}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching client:', error);
+    if (error.response) {
+      throw new Error(error.response.data.error || 'Failed to fetch client');
+    } else if (error.request) {
+      throw new Error('No response from server');
+    } else {
+      throw new Error(error.message);
+    }
+  }
+};
+
+
 // Update a client
 export const updateClient = async (clientId, clientData) => {
   try {
