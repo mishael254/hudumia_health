@@ -7,6 +7,7 @@ import Dashboard from '../components/dashboard/Dashboard';
 import LandingPage from '../components/navbars/home/LandingPage';
 import ClientDashboard from '../components/dashboard/components/clients/ClientDashboard';
 import ProtectedRoute from './ProtectedRoute';
+import ClientTable from '../components/dashboard/components/clients/ClientTable';
 
 const AppRoutes = ({ isAuthenticated, setIsAuthenticated }) => {
   return (
@@ -36,6 +37,14 @@ const AppRoutes = ({ isAuthenticated, setIsAuthenticated }) => {
         element={
           <ProtectedRoute isAuthenticated={isAuthenticated}>
             <ClientDashboard />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/clients-table" 
+        element={
+          <ProtectedRoute isAuthenticated={isAuthenticated}>
+            <ClientTable />
           </ProtectedRoute>
         } 
       />
