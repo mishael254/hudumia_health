@@ -9,7 +9,9 @@ import {
     Grow,
     Zoom,
     Fade,
-    LinearProgress
+    LinearProgress,
+    Collapse,
+    IconButton
   } from "@mui/material";
   import { useEffect, useState } from "react";
   import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
@@ -18,16 +20,20 @@ import {
   import AltSidebar from "../../../sidebars/AltSidebar";
   import { getDashboardStats } from "../../../../services/Api";
   import CountUp from 'react-countup';
+  import ClientTable from "./ClientTable";
+  import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+  import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
   
   const ClientDashboard = () => {
     const [percentage, setPercentage] = useState(0);
     const [clientCount, setClientCount] = useState(0);
     const [stats, setStats] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [showClientTable, setShowClientTable] = useState(false);
     const navigate = useNavigate();
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-    const CLIENT_GOAL = 500; // Set your target goal here
+    const CLIENT_GOAL = 500;
   
     useEffect(() => {
       const fetchData = async () => {
@@ -44,7 +50,6 @@ import {
             } else {
               current += 1;
               setClientCount(current);
-              // Calculate percentage towards our goal of 500 clients
               setPercentage((current / CLIENT_GOAL) * 100);
             }
           }, 30);
@@ -61,6 +66,10 @@ import {
   
     const handleEnrollClick = () => {
       navigate("/enroll-client");
+    };
+  
+    const toggleClientTable = () => {
+      setShowClientTable(!showClientTable);
     };
   
     return (
@@ -81,33 +90,42 @@ import {
             flexWrap="wrap"
             justifyContent={isMobile ? 'center' : 'flex-start'}
           >
-            {/* Total Clients Card */}
+            {/* Progress Card - now clickable */}
             <Grow in={!loading} timeout={500}>
-              <Card sx={{ 
-                flex: "1", 
-                minWidth: "300px", 
-                p: 2,
-                borderRadius: '16px',
-                boxShadow: '0 8px 16px rgba(0,0,0,0.1)',
-                transition: 'transform 0.3s ease, box-shadow 0.3s ease',
-                '&:hover': {
-                  transform: 'translateY(-5px)',
-                  boxShadow: '0 12px 20px rgba(0,0,0,0.15)'
-                },
-                background: 'linear-gradient(145deg, #ffffff, #f0f0f0)'
-              }}>
+              <Card 
+                sx={{ 
+                  flex: "1", 
+                  minWidth: "300px", 
+                  p: 2,
+                  borderRadius: '16px',
+                  boxShadow: '0 8px 16px rgba(0,0,0,0.1)',
+                  transition: 'transform 0.3s ease, box-shadow 0.3s ease',
+                  '&:hover': {
+                    transform: 'translateY(-5px)',
+                    boxShadow: '0 12px 20px rgba(0,0,0,0.15)',
+                    cursor: 'pointer'
+                  },
+                  background: 'linear-gradient(145deg, #ffffff, #f0f0f0)'
+                }}
+                onClick={toggleClientTable}
+              >
                 <CardContent sx={{ 
                   display: "flex", 
                   flexDirection: "column", 
                   alignItems: "center",
                   gap: 2
                 }}>
-                  <Typography variant="h5" gutterBottom sx={{ 
-                    fontWeight: '600',
-                    color: theme.palette.text.secondary
-                  }}>
-                    Client Progress
-                  </Typography>
+                  <Box display="flex" alignItems="center" justifyContent="space-between" width="100%">
+                    <Typography variant="h5" gutterBottom sx={{ 
+                      fontWeight: '600',
+                      color: theme.palette.text.secondary
+                    }}>
+                      Total Clients
+                    </Typography>
+                    <IconButton size="small">
+                      {showClientTable ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+                    </IconButton>
+                  </Box>
                   <Box width="150px" height="150px">
                     <CircularProgressbar
                       value={percentage}
@@ -209,6 +227,19 @@ import {
               </Card>
             </Zoom>
           </Box>
+  
+          {/* Client Table - Collapsible */}
+          <Collapse in={showClientTable} timeout="auto" unmountOnExit>
+            <Box mt={4}>
+              <Card sx={{ 
+                borderRadius: '16px',
+                boxShadow: '0 8px 16px rgba(0,0,0,0.1)',
+                overflow: 'hidden'
+              }}>
+                <ClientTable />
+              </Card>
+            </Box>
+          </Collapse>
         </Box>  
       </div>
     );
