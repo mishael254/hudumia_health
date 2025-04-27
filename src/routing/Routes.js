@@ -10,6 +10,8 @@ import ProtectedRoute from './ProtectedRoute';
 import ClientTable from '../components/dashboard/components/clients/ClientTable';
 import ClientProfile from '../components/dashboard/components/clients/ClientProfile';
 import EditClient from '../components/dashboard/components/clients/EditClient';
+import ClientCreate from '../components/dashboard/components/clients/ClientCreate';
+
 
 const AppRoutes = ({ isAuthenticated, setIsAuthenticated }) => {
   return (
@@ -63,6 +65,14 @@ const AppRoutes = ({ isAuthenticated, setIsAuthenticated }) => {
         element={
           <ProtectedRoute isAuthenticated={isAuthenticated}>
             <EditClient />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/new-client" 
+        element={
+          <ProtectedRoute isAuthenticated={isAuthenticated}>
+            <ClientCreate />
           </ProtectedRoute>
         } 
       />
