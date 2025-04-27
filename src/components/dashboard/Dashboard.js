@@ -28,12 +28,6 @@ function Dashboard() {
     fetchStats();
   }, []);
 
-  // You missed defining this in your code
-  const cardStyleOrange = {
-    backgroundColor: '#f57c00',
-    color: '#fff',
-  };
-
   return (
     <div style={{ display: 'flex' }}>
       <Sidebar />
@@ -85,7 +79,7 @@ function Dashboard() {
 
           {/* Total Enrollments Card */}
           <Grid item xs={12} sm={6} md={4}>
-            <Card sx={cardStyleOrange}>
+            <Card sx={{backgroundColor: '#f57c00',color: '#fff'}}>
               <CardContent>
                 <Grid container spacing={2} alignItems="center">
                   <Grid item>
