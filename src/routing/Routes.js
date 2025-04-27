@@ -8,7 +8,10 @@ import LandingPage from '../components/navbars/home/LandingPage';
 const AppRoutes = ({ isAuthenticated, setIsAuthenticated }) => {
     return (
         <Routes>
-            <Route path="/" element={<LandingPage/>} />
+            <Route
+                path="/"
+                element={isAuthenticated ? <Navigate to="/dashboard" /> : <LandingPage />}
+            />
             <Route path="/signup" element={<DoctorSignUp />} />
             <Route path="/login" element={<DoctorLogin setIsAuthenticated={setIsAuthenticated} />} />
             <Route
