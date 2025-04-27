@@ -1,185 +1,261 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { 
-  Card, CardContent, Typography, Avatar, Box, CircularProgress ,Alert,
-  AlertTitle, Divider, Button, Chip, Grid, Paper 
+  Card, CardContent, Typography, Avatar, Box, Divider, Button, 
+  Chip, Grid, Paper, CircularProgress, Alert, AlertTitle, 
+  List, ListItem, ListItemText, ListItemIcon
 } from '@mui/material';
-import { Email, Phone, LocationOn, CalendarToday } from '@mui/icons-material';
+import { 
+  Email, Phone, LocationOn, CalendarToday, Person, 
+  Cake, Transgender, Update, HowToReg 
+} from '@mui/icons-material';
 import { getClient } from '../../../../services/Api';
-//import ClientTable from './ClientTable';
-function ClientProfile () {
-    const { clientId } = useParams(); // <-- Catch the client ID from URL
-    const navigate = useNavigate();
-    const [client, setClient] = useState(null);
-    const [error, setError] = useState(null);
-    const [loading, setLoading ] = useState(true);
-  
-    useEffect(() => {
-        console.log('ClientProfile component rendered with id :', clientId);
+import AltSidebar from '../../../sidebars/AltSidebar';
 
-        if(!clientId){
-          setError('No client Id provided');
-          setLoading(false);
-          return;
-        }
+function ClientProfile() {
+  const { clientId } = useParams();
+  const navigate = useNavigate();
+  const [client, setClient] = useState(null);
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
 
+  useEffect(() => {
+    console.log('ClientProfile component rendered with id:', clientId);
 
-        const fetchClient = async () => {
-          try {
-            setLoading(true);
-            const data = await getClient(clientId); // use getClient instead of axios.get
-            console.log('Client data received: ',data);
-            setClient(data);
-          } catch (error) {
-            console.error('Failed to fetch client:', error);
-            setError(error.message || 'Failed to load client data');
-          } finally {
-            setLoading(false);
-          }
-        };
-      
-        fetchClient();
-    }, [clientId]);
+    if(!clientId) {
+      setError('No client ID provided');
+      setLoading(false);
+      return;
+    }
 
-    if (loading) {
-      return(
+    const fetchClient = async () => {
+      try {
+        setLoading(true);
+        const data = await getClient(clientId);
+        console.log('Client data received:', data);
+        setClient(data);
+      } catch (error) {
+        console.error('Failed to fetch client:', error);
+        setError(error.message || 'Failed to load client data');
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchClient();
+  }, [clientId]);
 
-        <Box display="flex" justifyContent="center" p={4}>
+  if (loading) {
+    return (
+      <Box display="flex" justifyContent="center" p={4}>
         <CircularProgress />
-        </Box>
+      </Box>
+    );
+  }
 
-      );
-    }
-    if (error) {
-      return (
-        <Alert severity="error" sx={{ m: 4 }}>
-          <AlertTitle>Error</AlertTitle>
-          {error}
-        </Alert>
-      );
-    }
-  
-    if (!client) {
-      return (
-        <Typography variant="body1" sx={{ p: 4 }}>
+  if (error) {
+    return (
+      <Alert severity="error" sx={{ m: 4 }}>
+        <AlertTitle>Error</AlertTitle>
+        {error}
+      </Alert>
+    );
+  }
+
+  if (!client) {
+    return (
+      <Typography variant="body1" sx={{ p: 4 }}>
         Client not found
       </Typography>
-    );}
-  
-    return (
-      <Card sx={{ 
-        maxWidth: 800, 
-        mx: 'auto', 
-        my: 4,
-        boxShadow: 3,
-        borderRadius: '16px'
-      }}>
-        <CardContent>
-          <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
-            <Box display="flex" alignItems="center">
-              <Avatar 
-                src={client.avatar} 
-                sx={{ width: 80, height: 80, mr: 3, fontSize: '2rem' }}
-              >
-                {client.firstName?.charAt(0)}{client.lastName?.charAt(0)}
-              </Avatar>
-              <Box>
-                <Typography variant="h4" component="div">
-                  {client.firstName} {client.lastName}
-                </Typography>
-                <Typography variant="subtitle1" color="text.secondary">
-                  Client ID: {client.id}
-                </Typography>
+    );
+  }
+
+  // Format date for display
+  const formatDate = (dateString) => {
+    if (!dateString) return 'Not available';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  };
+
+  // Calculate age from date of birth
+  const calculateAge = (dob) => {
+    if (!dob) return null;
+    const birthDate = new Date(dob);
+    const diff = Date.now() - birthDate.getTime();
+    const ageDate = new Date(diff);
+    return Math.abs(ageDate.getUTCFullYear() - 1970);
+  };
+
+  return (
+    <div style={{ display: 'flex' }}>
+      <AltSidebar/>
+    <Card sx={{ 
+      maxWidth: 1000, 
+      mx: 'auto', 
+      my: 4,
+      boxShadow: 3,
+      borderRadius: '16px'
+    }}>
+      <CardContent>
+        {/* Header Section */}
+        <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
+          <Box display="flex" alignItems="center">
+            <Avatar 
+              sx={{ 
+                width: 100, 
+                height: 100, 
+                mr: 3, 
+                fontSize: '2.5rem',
+                bgcolor: 'primary.main',
+                color: 'primary.contrastText'
+              }}
+            >
+              {client.first_name?.charAt(0)}{client.second_name?.charAt(0)}
+            </Avatar>
+            <Box>
+              <Typography variant="h3" component="div" sx={{ fontWeight: 600 }}>
+                {client.first_name} {client.second_name} {client.sir_name}
+              </Typography>
+              <Box display="flex" alignItems="center" mt={1} gap={2}>
                 <Chip 
-                  label={client.status || 'Active'} 
-                  sx={{ mt: 1,
-                    backgroundColor: client.status === 'Active' ? 'success.light' :
-                                     client.status === 'Inactive' ? 'error.light' :
-                                     'warning.light',
-                    color: client.status === 'Active' ? 'success.dark' :
-                           client.status === 'Inactive' ? 'error.dark' :
-                           'warning.dark',
-                  }} 
+                  label={`ID: ${client.id}`} 
+                  size="small"
+                  sx={{ fontWeight: 500 }}
                 />
+                <Chip 
+                  label={client.gender || 'Unknown'} 
+                  size="small"
+                  icon={<Transgender fontSize="small" />}
+                  sx={{ fontWeight: 500 }}
+                />
+                {client.date_of_birth && (
+                  <Chip 
+                    label={`Age: ${calculateAge(client.date_of_birth)}`} 
+                    size="small"
+                    icon={<Cake fontSize="small" />}
+                    sx={{ fontWeight: 500 }}
+                  />
+                )}
               </Box>
             </Box>
-  
-            <Button 
-              variant="outlined" 
-              onClick={() => navigate(-1)} // <-- Go back to previous page
-              sx={{ alignSelf: 'flex-start' }}
-            >
-              Back to List
-            </Button>
           </Box>
-  
-          <Divider sx={{ my: 3 }} />
-  
-          <Grid container spacing={3}>
-            {/* Contact Information */}
-            <Grid item xs={12} md={6}>
-              <Paper elevation={0} sx={{ p: 2, borderRadius: 2 }}>
-                <Typography variant="h6" gutterBottom sx={{ mb: 2 }}>
-                  Contact Information
-                </Typography>
-                <Box display="flex" alignItems="center" mb={2}>
-                  <Email color="action" sx={{ mr: 2 }} />
-                  <Typography>{client.email}</Typography>
-                </Box>
-                <Box display="flex" alignItems="center" mb={2}>
-                  <Phone color="action" sx={{ mr: 2 }} />
-                  <Typography>{client.phone || 'Not provided'}</Typography>
-                </Box>
-                {client.address && (
-                  <Box display="flex" alignItems="center">
-                    <LocationOn color="action" sx={{ mr: 2 }} />
-                    <Typography>{client.address}</Typography>
-                  </Box>
-                )}
-              </Paper>
-            </Grid>
-  
-            {/* Enrollment Details */}
-            <Grid item xs={12} md={6}>
-              <Paper elevation={0} sx={{ p: 2, borderRadius: 2 }}>
-                <Typography variant="h6" gutterBottom sx={{ mb: 2 }}>
-                  Enrollment Details
-                </Typography>
-                <Box display="flex" alignItems="center" mb={2}>
-                  <CalendarToday color="action" sx={{ mr: 2 }} />
-                  <Typography>
-                    Joined: {new Date(client.joinDate).toLocaleDateString()}
-                  </Typography>
-                </Box>
-                <Typography paragraph>
-                  Programs Enrolled: {client.enrollments?.length || 0}
-                </Typography>
-                {client.lastVisit && (
-                  <Typography>
-                    Last Visit: {new Date(client.lastVisit).toLocaleDateString()}
-                  </Typography>
-                )}
-              </Paper>
-            </Grid>
+
+          <Button 
+            variant="outlined" 
+            onClick={() => navigate(-1)}
+            startIcon={<HowToReg />}
+            sx={{ 
+              alignSelf: 'flex-start',
+              borderRadius: '12px',
+              px: 3,
+              py: 1
+            }}
+          >
+            Back to Clients
+          </Button>
+        </Box>
+
+        <Divider sx={{ my: 3 }} />
+
+        {/* Main Content Grid */}
+        <Grid container spacing={3}>
+          {/* Personal Information Column */}
+          <Grid item xs={12} md={6}>
+            <Paper elevation={0} sx={{ p: 3, borderRadius: 3, height: '100%' }}>
+              <Typography variant="h5" gutterBottom sx={{ 
+                mb: 3,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 1
+              }}>
+                <Person color="primary" /> Personal Information
+              </Typography>
+              
+              <List dense>
+                <ListItem>
+                  <ListItemIcon><Cake color="action" /></ListItemIcon>
+                  <ListItemText 
+                    primary="Date of Birth" 
+                    secondary={client.date_of_birth ? formatDate(client.date_of_birth) : 'Not provided'} 
+                  />
+                </ListItem>
+                
+                <ListItem>
+                  <ListItemIcon><Transgender color="action" /></ListItemIcon>
+                  <ListItemText 
+                    primary="Gender" 
+                    secondary={client.gender || 'Not provided'} 
+                  />
+                </ListItem>
+                
+                <ListItem>
+                  <ListItemIcon><Phone color="action" /></ListItemIcon>
+                  <ListItemText 
+                    primary="Phone Number" 
+                    secondary={client.phone_number || 'Not provided'} 
+                  />
+                </ListItem>
+              </List>
+            </Paper>
           </Grid>
-  
-          {client.notes && (
-            <>
-              <Divider sx={{ my: 3 }} />
-              <Box>
-                <Typography variant="h6" gutterBottom>
-                  Additional Notes
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
+
+          {/* Registration Details Column */}
+          <Grid item xs={12} md={6}>
+            <Paper elevation={0} sx={{ p: 3, borderRadius: 3, height: '100%' }}>
+              <Typography variant="h5" gutterBottom sx={{ 
+                mb: 3,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 1
+              }}>
+                <HowToReg color="primary" /> Registration Details
+              </Typography>
+              
+              <List dense>
+                <ListItem>
+                  <ListItemIcon><CalendarToday color="action" /></ListItemIcon>
+                  <ListItemText 
+                    primary="Registration Date" 
+                    secondary={formatDate(client.registration_date)} 
+                  />
+                </ListItem>
+                
+                <ListItem>
+                  <ListItemIcon><Update color="action" /></ListItemIcon>
+                  <ListItemText 
+                    primary="Last Updated" 
+                    secondary={formatDate(client.updated_at)} 
+                  />
+                </ListItem>
+              </List>
+            </Paper>
+          </Grid>
+        </Grid>
+
+        {/* Additional Notes Section */}
+        {client.notes && (
+          <>
+            <Divider sx={{ my: 4 }} />
+            <Box>
+              <Typography variant="h5" gutterBottom sx={{ mb: 2 }}>
+                Additional Notes
+              </Typography>
+              <Paper elevation={0} sx={{ p: 3, borderRadius: 3 }}>
+                <Typography variant="body1">
                   {client.notes}
                 </Typography>
-              </Box>
-            </>
-          )}
-        </CardContent>
-      </Card>
-    );
-  };
-  
-  export default ClientProfile;
-  
+              </Paper>
+            </Box>
+          </>
+        )}
+      </CardContent>
+    </Card>
+    </div>
+  );
+}
+
+export default ClientProfile;
