@@ -9,7 +9,7 @@ const AppRoutes = ({ isAuthenticated, setIsAuthenticated }) => {
     return (
         <Routes>
             <Route path="/signup" element={<DoctorSignUp />} />
-            <Route path="/login" element={<DoctorLogin />} />
+            <Route path="/login" element={<DoctorLogin setIsAuthenticated={setIsAuthenticated} />} />
             <Route
                 path="/dashboard"
                 element={isAuthenticated ? <Dashboard /> : <Navigate to="/login" />}
