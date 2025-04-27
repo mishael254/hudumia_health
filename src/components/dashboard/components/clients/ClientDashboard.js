@@ -23,13 +23,17 @@ import {
   import ClientTable from "./ClientTable";
   import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
   import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
-  
+  import ClientCreate from "./ClientCreate";
+  import AddIcon from '@mui/icons-material/Add';
+
+
   const ClientDashboard = () => {
     const [percentage, setPercentage] = useState(0);
     const [clientCount, setClientCount] = useState(0);
     const [stats, setStats] = useState(null);
     const [loading, setLoading] = useState(true);
     const [showClientTable, setShowClientTable] = useState(false);
+    const [showCreateForm, setShowCreateForm] = useState(false);
     const navigate = useNavigate();
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
