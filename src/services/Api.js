@@ -3,7 +3,7 @@ const API_BASE_URL = 'http://localhost:3004/api';
 
 // Create axios instance with auth header
 const createAuthenticatedAxios = () => {
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem('hudumia_health_token');
   return axios.create({
     baseURL: API_BASE_URL,
     headers: {
