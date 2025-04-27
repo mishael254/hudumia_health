@@ -117,7 +117,7 @@ const Sidebar = () => {
             <SubMenu title="Clients" icon={<PeopleOutlinedIcon />}>
               <Item
                 title="Manage Clients"
-                to="/team"
+                to="/clients"
                 icon={<ContactsOutlinedIcon />}
                 selected={selected}
                 setSelected={setSelected}
