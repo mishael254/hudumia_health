@@ -1,7 +1,7 @@
 // src/components/LandingPage.js
 
 import React from 'react';
-import { Container, Typography, Button, Box, Grid, Card, CardContent, CardMedia, List, ListItem, ListItemText } from '@mui/material';
+import { Container, Typography, Button, Box, Grid, Card, List, ListItem, ListItemText } from '@mui/material';
 import { Person, LocalHospital, Assignment, Search, BarChart, Usb } from '@mui/icons-material';
 
 const LandingPage = () => {
