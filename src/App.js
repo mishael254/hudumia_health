@@ -8,13 +8,16 @@ import Topbar from './components/navbars/dashboard/Topbar';
 //import DoctorLogIn from './components/auth/DoctorLogIn';
 const NavbarWrapper = ({ isAuthenticated }) => {
   const location = useLocation();
-  
-  // Check if the current path is the dashboard
-  const isDashboardRoute = location.pathname === '/dashboard';
-  
-  // Show DashboardNavbar if authenticated and on dashboard route, otherwise show HomeNavbar
-  return isDashboardRoute && isAuthenticated ? <Topbar /> : <HomeNavbar />;
+
+  // Define routes that belong to the dashboard section
+  const dashboardRoutes = ['/dashboard', '/clients', '/enroll-client', '/programs', '/settings'];
+
+  const isDashboardRoute = dashboardRoutes.some(route => location.pathname.startsWith(route));
+
+  // Show Topbar if authenticated and in dashboard area
+  return isAuthenticated && isDashboardRoute ? <Topbar /> : <HomeNavbar />;
 };
+
 
 const App = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
