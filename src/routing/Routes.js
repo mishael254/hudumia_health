@@ -51,7 +51,7 @@ const AppRoutes = ({ isAuthenticated, setIsAuthenticated }) => {
         } 
       />
       <Route 
-        path="/clients-profile" 
+        path="/clients-profile/:clientId" 
         element={
           <ProtectedRoute isAuthenticated={isAuthenticated}>
             <ClientProfile />
