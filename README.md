@@ -179,7 +179,7 @@ ppt format
 [Hudumia Health Live demo 2](public/presentations/hudumia-health%20live%20demos/demo2edited.mp4)
 
 
-
+All this live demos are in the public folder of the app
 
 ---
 
