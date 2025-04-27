@@ -361,8 +361,9 @@ app.get('/api/clients/search', authenticateDoctor, async (req, res) => {
 
 // Get details of a specific client
 app.get('/api/clients/:id', authenticateDoctor, async (req, res) => {
-    const { id } = req.params;
+    
     try {
+        const { id } = req.params;
         const result = await pool.query('SELECT * FROM clients WHERE id = $1', [id]);
         if (result.rows.length === 0) {
             return res.status(404).json({ error: 'Client not found' });
