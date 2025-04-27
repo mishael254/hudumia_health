@@ -3,29 +3,43 @@ import {
   MDBContainer,
   MDBRow,
   MDBCol,
-  MDBCard,
-  MDBCardBody,
-  MDBCardTitle,
-  MDBCardText,
-  MDBBtn,
-  MDBIcon,
-  MDBTable,
-  MDBTableHead,
-  MDBTableBody,
-  MDBBadge,
-  MDBTypography,
   MDBTabs,
   MDBTabsItem,
   MDBTabsLink,
   MDBTabsContent,
-  MDBTabsPane
+  MDBTabsPane,
+  MDBIcon
 } from 'mdb-react-ui-kit';
-import axios from 'axios';
+import { 
+  getPrograms, 
+  getClients, 
+  getDashboardStats, 
+  getRecentEnrollments,
+  createProgram,
+  createClient,
+  enrollClientInProgram,
+  getClientEnrollments
+} from '../../services/Api';
 
-const API_BASE_URL = 'http://localhost:3004/api';
+// Import components
+import StatisticsCard from './components/StatisticsCard';
+import SearchClients from './components/SearchClients';
+import RecentEnrollments from './components/RecentEnrollments';
+import QuickActions from './components/QuickActions';
+import ClientModal from './components/ClientModal';
+import ProgramModal from './components/ProgramModal';
+import EnrollmentModal from './components/EnrollmentModal';
+import ViewClientModal from './components/ViewClientModal';
+import APIDocModal from './components/APIDocModal';
+import Notification from './components/Notification';
+import Sidebar from '../sidebars/Sidebar';
+import './Dashboard.css';
 
 function Dashboard() {
+  // State for tabs
   const [activeTab, setActiveTab] = useState('overview');
+  
+  // State for data
   const [stats, setStats] = useState({
     totalClients: 0,
     totalPrograms: 0,
@@ -34,65 +48,227 @@ function Dashboard() {
   const [recentEnrollments, setRecentEnrollments] = useState([]);
   const [programs, setPrograms] = useState([]);
   const [clients, setClients] = useState([]);
+  const [filteredClients, setFilteredClients] = useState([]);
+  const [selectedClientEnrollments, setSelectedClientEnrollments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  
+  // State for modals
+  const [showClientModal, setShowClientModal] = useState(false);
+  const [showProgramModal, setShowProgramModal] = useState(false);
+  const [showEnrollmentModal, setShowEnrollmentModal] = useState(false);
+  const [showViewClientModal, setShowViewClientModal] = useState(false);
+  const [showAPIDocModal, setShowAPIDocModal] = useState(false);
+  const [selectedClient, setSelectedClient] = useState(null);
+  const [isEditMode, setIsEditMode] = useState(false);
+  
+  // State for notifications
+  const [notification, setNotification] = useState({
+    show: false,
+    message: '',
+    type: 'info'
+  });
 
-  // Mock data for demonstration - replace with actual API calls
+  // Fetch dashboard data on component mount
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
         setLoading(true);
-        // In a real implementation, these would be actual API calls
-        // For now, we'll use mock data
         
-        // Mock stats
-        setStats({
-          totalClients: 24,
-          totalPrograms: 5,
-          totalEnrollments: 32
-        });
-        
-        // Mock recent enrollments
-        setRecentEnrollments([
-          { id: 1, clientName: 'John Doe', programName: 'Diabetes Management', date: '2025-04-20' },
-          { id: 2, clientName: 'Jane Smith', programName: 'Hypertension Control', date: '2025-04-22' },
-          { id: 3, clientName: 'Michael Johnson', programName: 'Maternal Care', date: '2025-04-23' },
-          { id: 4, clientName: 'Sarah Williams', programName: 'Child Immunization', date: '2025-04-25' }
+        // Fetch data from API
+        const [statsData, enrollmentsData, programsData, clientsData] = await Promise.all([
+          getDashboardStats(),
+          getRecentEnrollments(5),
+          getPrograms(),
+          getClients()
         ]);
         
-        // Mock programs
-        setPrograms([
-          { id: 1, name: 'Diabetes Management', description: 'Comprehensive care for diabetes patients', enrolledClients: 8 },
-          { id: 2, name: 'Hypertension Control', description: 'Blood pressure monitoring and management', enrolledClients: 12 },
-          { id: 3, name: 'Maternal Care', description: 'Care for expectant mothers', enrolledClients: 6 },
-          { id: 4, name: 'Child Immunization', description: 'Vaccination program for children', enrolledClients: 10 },
-          { id: 5, name: 'Mental Health Support', description: 'Counseling and therapy services', enrolledClients: 4 }
-        ]);
+        setStats(statsData);
+        setRecentEnrollments(enrollmentsData);
         
-        // Mock clients
-        setClients([
-          { id: 1, name: 'John Doe', gender: 'Male', dob: '1985-06-15', phone: '+254712345678', programs: 2 },
-          { id: 2, name: 'Jane Smith', gender: 'Female', dob: '1990-03-22', phone: '+254723456789', programs: 1 },
-          { id: 3, name: 'Michael Johnson', gender: 'Male', dob: '1978-11-30', phone: '+254734567890', programs: 1 },
-          { id: 4, name: 'Sarah Williams', gender: 'Female', dob: '1995-08-12', phone: '+254745678901', programs: 1 },
-          { id: 5, name: 'David Brown', gender: 'Male', dob: '1982-04-05', phone: '+254756789012', programs: 2 }
-        ]);
+        // Process programs data to include enrolled clients count
+        const processedPrograms = programsData.map(program => ({
+          ...program,
+          enrolledClients: Math.floor(Math.random() * 15) + 1 // Placeholder until we have real data
+        }));
+        setPrograms(processedPrograms);
+        
+        // Process clients data to format for display
+        const processedClients = clientsData.map(client => ({
+          id: client.id,
+          name: `${client.first_name} ${client.second_name} ${client.sir_name}`,
+          gender: client.gender,
+          dob: client.date_of_birth,
+          phone: client.phone_number,
+          address: client.address || 'N/A',
+          email: client.email || 'N/A',
+          programs: Math.floor(Math.random() * 3) + 1 // Placeholder until we have real data
+        }));
+        setClients(processedClients);
+        setFilteredClients(processedClients);
         
         setLoading(false);
       } catch (err) {
         console.error('Error fetching dashboard data:', err);
         setError('Failed to load dashboard data. Please try again later.');
         setLoading(false);
+        showNotification('Failed to load dashboard data. Please try again later.', 'error');
       }
     };
 
     fetchDashboardData();
   }, []);
-
+  
+  // Handle tab change
   const handleTabClick = (tabId) => {
     if (activeTab !== tabId) {
       setActiveTab(tabId);
     }
+  };
+  
+  // Handle search
+  const handleSearch = (searchTerm) => {
+    if (!searchTerm.trim()) {
+      setFilteredClients(clients);
+      return;
+    }
+    
+    const term = searchTerm.toLowerCase();
+    const filtered = clients.filter(client => 
+      client.name.toLowerCase().includes(term) || 
+      (client.phone && client.phone.toLowerCase().includes(term))
+    );
+    
+    setFilteredClients(filtered);
+  };
+  
+  // Handle client actions
+  const handleViewClient = async (client) => {
+    setSelectedClient(client);
+    try {
+      // Fetch client enrollments
+      const enrollments = await getClientEnrollments(client.id);
+      setSelectedClientEnrollments(enrollments);
+    } catch (error) {
+      console.error('Error fetching client enrollments:', error);
+      setSelectedClientEnrollments([]);
+    }
+    setShowViewClientModal(true);
+  };
+  
+  const handleRegisterClient = () => {
+    setIsEditMode(false);
+    setSelectedClient(null);
+    setShowClientModal(true);
+  };
+  
+  const handleClientSubmit = async (clientData) => {
+    try {
+      await createClient(clientData);
+      setShowClientModal(false);
+      
+      // Refresh clients list
+      const clientsData = await getClients();
+      const processedClients = clientsData.map(client => ({
+        id: client.id,
+        name: `${client.first_name} ${client.second_name} ${client.sir_name}`,
+        gender: client.gender,
+        dob: client.date_of_birth,
+        phone: client.phone_number,
+        address: client.address || 'N/A',
+        email: client.email || 'N/A',
+        programs: 0 // New client has no enrollments
+      }));
+      setClients(processedClients);
+      setFilteredClients(processedClients);
+      
+      // Update stats
+      setStats(prev => ({
+        ...prev,
+        totalClients: prev.totalClients + 1
+      }));
+      
+      showNotification('Client registered successfully!', 'success');
+    } catch (error) {
+      console.error('Error creating client:', error);
+      showNotification('Failed to register client: ' + error.message, 'error');
+    }
+  };
+  
+  // Handle program actions
+  const handleCreateProgram = () => {
+    setIsEditMode(false);
+    setShowProgramModal(true);
+  };
+  
+  const handleProgramSubmit = async (programData) => {
+    try {
+      await createProgram(programData);
+      setShowProgramModal(false);
+      
+      // Refresh programs list
+      const programsData = await getPrograms();
+      const processedPrograms = programsData.map(program => ({
+        ...program,
+        enrolledClients: 0 // New program has no enrollments
+      }));
+      setPrograms(processedPrograms);
+      
+      // Update stats
+      setStats(prev => ({
+        ...prev,
+        totalPrograms: prev.totalPrograms + 1
+      }));
+      
+      showNotification('Health program created successfully!', 'success');
+    } catch (error) {
+      console.error('Error creating program:', error);
+      showNotification('Failed to create program: ' + error.message, 'error');
+    }
+  };
+  
+  // Handle enrollment actions
+  const handleEnrollClient = (client = null) => {
+    if (client) {
+      setSelectedClient(client);
+    }
+    setShowEnrollmentModal(true);
+  };
+  
+  const handleEnrollmentSubmit = async (enrollmentData) => {
+    try {
+      await enrollClientInProgram(enrollmentData);
+      setShowEnrollmentModal(false);
+      
+      // Refresh enrollments
+      const enrollmentsData = await getRecentEnrollments(5);
+      setRecentEnrollments(enrollmentsData);
+      
+      // Update stats
+      setStats(prev => ({
+        ...prev,
+        totalEnrollments: prev.totalEnrollments + 1
+      }));
+      
+      showNotification('Client enrolled successfully!', 'success');
+    } catch (error) {
+      console.error('Error creating enrollment:', error);
+      showNotification('Failed to enroll client: ' + error.message, 'error');
+    }
+  };
+  
+  // Handle API documentation
+  const handleViewAPI = () => {
+    setShowAPIDocModal(true);
+  };
+  
+  // Show notification
+  const showNotification = (message, type = 'info') => {
+    setNotification({
+      show: true,
+      message,
+      type
+    });
   };
 
   if (loading) {
@@ -111,289 +287,222 @@ function Dashboard() {
       <MDBContainer className="py-5 text-center">
         <MDBIcon fas icon="exclamation-triangle" size="3x" className="text-warning mb-3" />
         <p className="lead">{error}</p>
-        <MDBBtn color="primary" onClick={() => window.location.reload()}>
+        <button className="btn btn-primary" onClick={() => window.location.reload()}>
           Retry
-        </MDBBtn>
+        </button>
       </MDBContainer>
     );
   }
 
   return (
-    <MDBContainer fluid className="py-4">
-      {/* Dashboard Header */}
-      <MDBRow className="mb-4">
-        <MDBCol>
-          <MDBTypography tag="h2" className="fw-bold">
-            <MDBIcon fas icon="clinic-medical" className="me-2 text-primary" />
-            Doctor Dashboard
-          </MDBTypography>
-          <p className="text-muted">
-            Welcome to HudumiaHealth Portal. Manage your clients and health programs.
-          </p>
-        </MDBCol>
-        <MDBCol className="text-end">
-          <MDBBtn color="primary" className="me-2">
-            <MDBIcon fas icon="user-plus" className="me-2" />
-            New Client
-          </MDBBtn>
-          <MDBBtn color="success">
-            <MDBIcon fas icon="plus-circle" className="me-2" />
-            New Program
-          </MDBBtn>
-        </MDBCol>
-      </MDBRow>
+    <>
+      <MDBContainer fluid className="py-4">
+        {/* Dashboard Header */}
+        <Sidebar />
+        <MDBRow className="mb-4">
+          <MDBCol>
+            <h2 className="fw-bold">
+              <MDBIcon fas icon="clinic-medical" className="me-2 text-primary" />
+              Doctor Dashboard
+            </h2>
+            <p className="text-muted">
+              Welcome to HudumiaHealth Portal. Manage your clients and health programs.
+            </p>
+          </MDBCol>
+        </MDBRow>
 
-      {/* Dashboard Navigation */}
-      <MDBTabs pills className="mb-4">
-        <MDBTabsItem>
-          <MDBTabsLink
-            onClick={() => handleTabClick('overview')}
-            active={activeTab === 'overview'}
-          >
-            <MDBIcon fas icon="chart-line" className="me-2" />
-            Overview
-          </MDBTabsLink>
-        </MDBTabsItem>
-        <MDBTabsItem>
-          <MDBTabsLink
-            onClick={() => handleTabClick('programs')}
-            active={activeTab === 'programs'}
-          >
-            <MDBIcon fas icon="clipboard-list" className="me-2" />
-            Programs
-          </MDBTabsLink>
-        </MDBTabsItem>
-        <MDBTabsItem>
-          <MDBTabsLink
-            onClick={() => handleTabClick('clients')}
-            active={activeTab === 'clients'}
-          >
-            <MDBIcon fas icon="users" className="me-2" />
-            Clients
-          </MDBTabsLink>
-        </MDBTabsItem>
-      </MDBTabs>
+        {/* Dashboard Navigation */}
+        <MDBTabs pills className="mb-4">
+          <MDBTabsItem>
+            <MDBTabsLink
+              onClick={() => handleTabClick('overview')}
+              active={activeTab === 'overview'}
+            >
+              <MDBIcon fas icon="chart-line" className="me-2" />
+              Overview
+            </MDBTabsLink>
+          </MDBTabsItem>
+          <MDBTabsItem>
+            <MDBTabsLink
+              onClick={() => handleTabClick('programs')}
+              active={activeTab === 'programs'}
+            >
+              <MDBIcon fas icon="clipboard-list" className="me-2" />
+              Programs
+            </MDBTabsLink>
+          </MDBTabsItem>
+          <MDBTabsItem>
+            <MDBTabsLink
+              onClick={() => handleTabClick('clients')}
+              active={activeTab === 'clients'}
+            >
+              <MDBIcon fas icon="users" className="me-2" />
+              Clients
+            </MDBTabsLink>
+          </MDBTabsItem>
+          <MDBTabsItem>
+            <MDBTabsLink
+              onClick={() => handleTabClick('enrollments')}
+              active={activeTab === 'enrollments'}
+            >
+              <MDBIcon fas icon="file-medical" className="me-2" />
+              Enrollments
+            </MDBTabsLink>
+          </MDBTabsItem>
+          <MDBTabsItem>
+            <MDBTabsLink
+              onClick={() => handleTabClick('api')}
+              active={activeTab === 'api'}
+            >
+              <MDBIcon fas icon="plug" className="me-2" />
+              API
+            </MDBTabsLink>
+          </MDBTabsItem>
+        </MDBTabs>
 
-      <MDBTabsContent>
-        {/* Overview Tab */}
-        <MDBTabsPane show={activeTab === 'overview'}>
-          {/* Stats Cards */}
-          <MDBRow className="mb-4">
-            <MDBCol md="4">
-              <MDBCard className="h-100">
-                <MDBCardBody className="text-center">
-                  <div className="d-flex justify-content-center align-items-center mb-3">
-                    <div className="rounded-circle bg-primary bg-opacity-10 p-3">
-                      <MDBIcon fas icon="users" size="2x" className="text-primary" />
-                    </div>
-                  </div>
-                  <MDBCardTitle tag="h2">{stats.totalClients}</MDBCardTitle>
-                  <MDBCardText>Total Clients</MDBCardText>
-                  <MDBBtn color="light" className="mt-2">View All Clients</MDBBtn>
-                </MDBCardBody>
-              </MDBCard>
-            </MDBCol>
-            <MDBCol md="4">
-              <MDBCard className="h-100">
-                <MDBCardBody className="text-center">
-                  <div className="d-flex justify-content-center align-items-center mb-3">
-                    <div className="rounded-circle bg-success bg-opacity-10 p-3">
-                      <MDBIcon fas icon="clipboard-list" size="2x" className="text-success" />
-                    </div>
-                  </div>
-                  <MDBCardTitle tag="h2">{stats.totalPrograms}</MDBCardTitle>
-                  <MDBCardText>Health Programs</MDBCardText>
-                  <MDBBtn color="light" className="mt-2">Manage Programs</MDBBtn>
-                </MDBCardBody>
-              </MDBCard>
-            </MDBCol>
-            <MDBCol md="4">
-              <MDBCard className="h-100">
-                <MDBCardBody className="text-center">
-                  <div className="d-flex justify-content-center align-items-center mb-3">
-                    <div className="rounded-circle bg-info bg-opacity-10 p-3">
-                      <MDBIcon fas icon="file-medical" size="2x" className="text-info" />
-                    </div>
-                  </div>
-                  <MDBCardTitle tag="h2">{stats.totalEnrollments}</MDBCardTitle>
-                  <MDBCardText>Program Enrollments</MDBCardText>
-                  <MDBBtn color="light" className="mt-2">View Enrollments</MDBBtn>
-                </MDBCardBody>
-              </MDBCard>
-            </MDBCol>
-          </MDBRow>
+        <MDBTabsContent>
+          {/* Overview Tab */}
+          <MDBTabsPane show={activeTab === 'overview'}>
+            {/* Stats Cards */}
+            <div className="dashboard-cards">
+              <StatisticsCard 
+                title="Total Clients" 
+                count={stats.totalClients} 
+                icon="users" 
+                iconColor="clients" 
+                subtitle="Registered" 
+              />
+              
+              <StatisticsCard 
+                title="Health Programs" 
+                count={stats.totalPrograms} 
+                icon="clipboard-list" 
+                iconColor="programs" 
+                subtitle="Active" 
+              />
+              
+              <StatisticsCard 
+                title="Enrollments" 
+                count={stats.totalEnrollments} 
+                icon="file-medical" 
+                iconColor="enrollments" 
+                subtitle="Total" 
+              />
+            </div>
 
-          {/* Recent Enrollments */}
-          <MDBRow className="mb-4">
-            <MDBCol>
-              <MDBCard>
-                <MDBCardBody>
-                  <MDBCardTitle className="mb-4">
-                    <MDBIcon fas icon="calendar-check" className="me-2 text-primary" />
-                    Recent Enrollments
-                  </MDBCardTitle>
-                  <MDBTable hover responsive>
-                    <MDBTableHead>
-                      <tr>
-                        <th scope="col">#</th>
-                        <th scope="col">Client Name</th>
-                        <th scope="col">Program</th>
-                        <th scope="col">Date</th>
-                        <th scope="col">Actions</th>
-                      </tr>
-                    </MDBTableHead>
-                    <MDBTableBody>
-                      {recentEnrollments.map((enrollment, index) => (
-                        <tr key={enrollment.id}>
-                          <td>{index + 1}</td>
-                          <td>{enrollment.clientName}</td>
-                          <td>{enrollment.programName}</td>
-                          <td>{new Date(enrollment.date).toLocaleDateString()}</td>
-                          <td>
-                            <MDBBtn color="link" size="sm" className="p-0 me-2">
-                              <MDBIcon fas icon="eye" />
-                            </MDBBtn>
-                            <MDBBtn color="link" size="sm" className="p-0 text-success me-2">
-                              <MDBIcon fas icon="edit" />
-                            </MDBBtn>
-                            <MDBBtn color="link" size="sm" className="p-0 text-danger">
-                              <MDBIcon fas icon="trash" />
-                            </MDBBtn>
-                          </td>
-                        </tr>
-                      ))}
-                    </MDBTableBody>
-                  </MDBTable>
-                  <div className="text-center mt-3">
-                    <MDBBtn color="primary" outline>View All Enrollments</MDBBtn>
-                  </div>
-                </MDBCardBody>
-              </MDBCard>
-            </MDBCol>
-          </MDBRow>
-        </MDBTabsPane>
+            {/* Search Clients */}
+            <SearchClients 
+              clients={filteredClients} 
+              onSearch={handleSearch} 
+              onViewClient={handleViewClient} 
+              onEnrollClient={handleEnrollClient} 
+            />
 
-        {/* Programs Tab */}
-        <MDBTabsPane show={activeTab === 'programs'}>
-          <MDBRow className="mb-4">
-            <MDBCol>
-              <MDBCard>
-                <MDBCardBody>
-                  <div className="d-flex justify-content-between align-items-center mb-4">
-                    <MDBCardTitle className="mb-0">
-                      <MDBIcon fas icon="clipboard-list" className="me-2 text-primary" />
-                      Health Programs
-                    </MDBCardTitle>
-                    <MDBBtn color="success" size="sm">
-                      <MDBIcon fas icon="plus" className="me-2" />
-                      Add Program
-                    </MDBBtn>
-                  </div>
-                  <MDBTable hover responsive>
-                    <MDBTableHead>
-                      <tr>
-                        <th scope="col">#</th>
-                        <th scope="col">Program Name</th>
-                        <th scope="col">Description</th>
-                        <th scope="col">Enrolled Clients</th>
-                        <th scope="col">Actions</th>
-                      </tr>
-                    </MDBTableHead>
-                    <MDBTableBody>
-                      {programs.map((program, index) => (
-                        <tr key={program.id}>
-                          <td>{index + 1}</td>
-                          <td>{program.name}</td>
-                          <td>{program.description}</td>
-                          <td>
-                            <MDBBadge color="info" pill>
-                              {program.enrolledClients}
-                            </MDBBadge>
-                          </td>
-                          <td>
-                            <MDBBtn color="link" size="sm" className="p-0 me-2">
-                              <MDBIcon fas icon="eye" />
-                            </MDBBtn>
-                            <MDBBtn color="link" size="sm" className="p-0 text-success me-2">
-                              <MDBIcon fas icon="edit" />
-                            </MDBBtn>
-                            <MDBBtn color="link" size="sm" className="p-0 text-danger">
-                              <MDBIcon fas icon="trash" />
-                            </MDBBtn>
-                          </td>
-                        </tr>
-                      ))}
-                    </MDBTableBody>
-                  </MDBTable>
-                </MDBCardBody>
-              </MDBCard>
-            </MDBCol>
-          </MDBRow>
-        </MDBTabsPane>
+            {/* Quick Actions */}
+            <QuickActions 
+              onRegisterClient={handleRegisterClient} 
+              onCreateProgram={handleCreateProgram} 
+              onEnrollClient={handleEnrollClient} 
+              onViewAPI={handleViewAPI} 
+            />
+          </MDBTabsPane>
 
-        {/* Clients Tab */}
-        <MDBTabsPane show={activeTab === 'clients'}>
-          <MDBRow className="mb-4">
-            <MDBCol>
-              <MDBCard>
-                <MDBCardBody>
-                  <div className="d-flex justify-content-between align-items-center mb-4">
-                    <MDBCardTitle className="mb-0">
-                      <MDBIcon fas icon="users" className="me-2 text-primary" />
-                      Client Management
-                    </MDBCardTitle>
-                    <MDBBtn color="primary" size="sm">
-                      <MDBIcon fas icon="user-plus" className="me-2" />
-                      Add Client
-                    </MDBBtn>
-                  </div>
-                  <MDBTable hover responsive>
-                    <MDBTableHead>
-                      <tr>
-                        <th scope="col">#</th>
-                        <th scope="col">Name</th>
-                        <th scope="col">Gender</th>
-                        <th scope="col">Date of Birth</th>
-                        <th scope="col">Phone Number</th>
-                        <th scope="col">Programs</th>
-                        <th scope="col">Actions</th>
-                      </tr>
-                    </MDBTableHead>
-                    <MDBTableBody>
-                      {clients.map((client, index) => (
-                        <tr key={client.id}>
-                          <td>{index + 1}</td>
-                          <td>{client.name}</td>
-                          <td>{client.gender}</td>
-                          <td>{new Date(client.dob).toLocaleDateString()}</td>
-                          <td>{client.phone}</td>
-                          <td>
-                            <MDBBadge color="info" pill>
-                              {client.programs}
-                            </MDBBadge>
-                          </td>
-                          <td>
-                            <MDBBtn color="link" size="sm" className="p-0 me-2">
-                              <MDBIcon fas icon="eye" />
-                            </MDBBtn>
-                            <MDBBtn color="link" size="sm" className="p-0 text-success me-2">
-                              <MDBIcon fas icon="edit" />
-                            </MDBBtn>
-                            <MDBBtn color="link" size="sm" className="p-0 text-danger">
-                              <MDBIcon fas icon="trash" />
-                            </MDBBtn>
-                          </td>
-                        </tr>
-                      ))}
-                    </MDBTableBody>
-                  </MDBTable>
-                </MDBCardBody>
-              </MDBCard>
-            </MDBCol>
-          </MDBRow>
-        </MDBTabsPane>
-      </MDBTabsContent>
-    </MDBContainer>
+          {/* Programs Tab */}
+          <MDBTabsPane show={activeTab === 'programs'}>
+            {/* Programs content will go here */}
+            <MDBRow className="mb-4">
+              <MDBCol>
+                <h3>Health Programs</h3>
+                <p>Manage your health programs here.</p>
+              </MDBCol>
+            </MDBRow>
+          </MDBTabsPane>
+
+          {/* Clients Tab */}
+          <MDBTabsPane show={activeTab === 'clients'}>
+            {/* Clients content will go here */}
+            <MDBRow className="mb-4">
+              <MDBCol>
+                <h3>Client Management</h3>
+                <p>Manage your clients here.</p>
+              </MDBCol>
+            </MDBRow>
+          </MDBTabsPane>
+
+          {/* Enrollments Tab */}
+          <MDBTabsPane show={activeTab === 'enrollments'}>
+            {/* Enrollments content will go here */}
+            <MDBRow className="mb-4">
+              <MDBCol>
+                <RecentEnrollments 
+                  enrollments={recentEnrollments} 
+                  onViewEnrollment={() => {}} 
+                  onEditEnrollment={() => {}} 
+                  onDeleteEnrollment={() => {}} 
+                />
+              </MDBCol>
+            </MDBRow>
+          </MDBTabsPane>
+
+          {/* API Tab */}
+          <MDBTabsPane show={activeTab === 'api'}>
+            {/* API content will go here */}
+            <MDBRow className="mb-4">
+              <MDBCol>
+                <h3>API Documentation</h3>
+                <p>Access the API documentation here.</p>
+                <button className="btn btn-primary" onClick={handleViewAPI}>
+                  View API Documentation
+                </button>
+              </MDBCol>
+            </MDBRow>
+          </MDBTabsPane>
+        </MDBTabsContent>
+      </MDBContainer>
+      
+      {/* Modals */}
+      <ClientModal 
+        show={showClientModal} 
+        setShow={setShowClientModal} 
+        client={selectedClient} 
+        onSubmit={handleClientSubmit} 
+        isEdit={isEditMode} 
+      />
+      
+      <ProgramModal 
+        show={showProgramModal} 
+        setShow={setShowProgramModal} 
+        onSubmit={handleProgramSubmit} 
+        isEdit={isEditMode} 
+      />
+      
+      <EnrollmentModal 
+        show={showEnrollmentModal} 
+        setShow={setShowEnrollmentModal} 
+        clients={clients} 
+        programs={programs} 
+        onSubmit={handleEnrollmentSubmit} 
+        isEdit={isEditMode} 
+      />
+      
+      <ViewClientModal 
+        show={showViewClientModal} 
+        setShow={setShowViewClientModal} 
+        client={selectedClient} 
+        enrollments={selectedClientEnrollments} 
+      />
+      
+      <APIDocModal 
+        show={showAPIDocModal} 
+        setShow={setShowAPIDocModal} 
+      />
+      
+      {/* Notification */}
+      <Notification 
+        notification={notification} 
+        setNotification={setNotification} 
+      />
+    </>
   );
 }
 

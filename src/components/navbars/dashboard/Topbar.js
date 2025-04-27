@@ -1,5 +1,6 @@
 import { Box, IconButton, useTheme } from "@mui/material";
 import { useContext } from "react";
+import { useNavigate } from "react-router-dom"; // <-- Import useNavigate
 import { ColorModeContext, tokens } from "../../../theme";
 import InputBase from "@mui/material/InputBase";
 import LightModeOutlinedIcon from "@mui/icons-material/LightModeOutlined";
@@ -7,12 +8,20 @@ import DarkModeOutlinedIcon from "@mui/icons-material/DarkModeOutlined";
 import NotificationsOutlinedIcon from "@mui/icons-material/NotificationsOutlined";
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 import PersonOutlinedIcon from "@mui/icons-material/PersonOutlined";
+import LogoutOutlinedIcon from "@mui/icons-material/LogoutOutlined"; // <-- New Icon
 import SearchIcon from "@mui/icons-material/Search";
 
 const Topbar = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const colorMode = useContext(ColorModeContext);
+  const navigate = useNavigate(); // <-- Initialize useNavigate
+
+  const handleLogout = () => {
+    localStorage.removeItem('hudumia_health_token'); // <-- Clear token
+    navigate('/login'); // <-- Redirect to login
+    window.location.reload(); // <-- Optional: reload the page to reset states if needed
+  };
 
   return (
     <Box display="flex" justifyContent="space-between" p={2}>
@@ -45,6 +54,11 @@ const Topbar = () => {
         </IconButton>
         <IconButton>
           <PersonOutlinedIcon />
+        </IconButton>
+
+        {/* LOGOUT BUTTON */}
+        <IconButton onClick={handleLogout}>
+          <LogoutOutlinedIcon />
         </IconButton>
       </Box>
     </Box>

@@ -12,9 +12,10 @@ import {
   MDBCheckbox
 } from 'mdb-react-ui-kit';
 import { signinDoctor } from '../../services/Api'; // Ensure this function handles the QR code
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
-function DoctorLogIn() {
+
+function DoctorLogIn({setIsAuthenticated}) {
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [token, setToken] = useState('');
@@ -45,16 +46,15 @@ function DoctorLogIn() {
         rememberMe
       };
       const data = await signinDoctor(credentials);
+      setIsAuthenticated(true);
       console.log('Login successful:', data);
       // Handle successful login (redirect, store token, etc.)
       if (data.token) {
-        localStorage.setItem('token', data.token);
+        localStorage.setItem('hudumia_health_token', data.token);
         setSuccessMessage('Login successful!'); // Set success message
-        //  setIsAuthenticated(true);  //移到App.js
-        //  navigate('/dashboard');  //移到App.js // Remove immediate navigation
-
+        // The App component will detect the token and update isAuthenticated state
+        
         setTimeout(() => {
-          //  setIsAuthenticated(true);
           navigate('/dashboard'); // Redirect after 2 seconds
         }, 2000);
       } else if (data.twoFAQRCode) {
@@ -158,7 +158,7 @@ function DoctorLogIn() {
                         checked={rememberMe}
                         onChange={(e) => setRememberMe(e.target.checked)}
                       />
-                      <a href="#!" style={{ color: '#3b71ca' }}>Forgot password?</a>
+                      <Link to="/forgot-password" style={{ color: '#3b71ca' }}>Forgot password?</Link>
                     </div>
 
                     <MDBBtn
