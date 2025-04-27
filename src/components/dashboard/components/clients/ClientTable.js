@@ -12,14 +12,17 @@ import {
   AlertTitle,
   Avatar,
   Box,
-  Typography
+  Typography,
+  Button
 } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 import { getClients } from '../../../../services/Api';
 
 const ClientTable = () => {
   const [clients, setClients] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchClients = async () => {
@@ -35,6 +38,10 @@ const ClientTable = () => {
 
     fetchClients();
   }, []);
+
+  const handleViewClient = (clientId) => {
+    navigate(`/client-profile/${clientId}`);
+  };
 
   if (loading) {
     return (
@@ -71,6 +78,7 @@ const ClientTable = () => {
                 {header.charAt(0).toUpperCase() + header.slice(1)}
               </TableCell>
             ))}
+            <TableCell>Actions</TableCell> {/* New column for button */}
           </TableRow>
         </TableHead>
         <TableBody>
@@ -85,6 +93,17 @@ const ClientTable = () => {
                   )}
                 </TableCell>
               ))}
+              <TableCell>
+                <Button 
+                  variant="contained" 
+                  color="primary" 
+                  size="small"
+                  onClick={() => handleViewClient(client.id)}
+                  sx={{ textTransform: 'none', fontWeight: 600 }}
+                >
+                  View
+                </Button>
+              </TableCell> {/* Button in every row */}
             </TableRow>
           ))}
         </TableBody>
