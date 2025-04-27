@@ -13,21 +13,19 @@ import CalendarTodayOutlinedIcon from "@mui/icons-material/CalendarTodayOutlined
 import HelpOutlineOutlinedIcon from "@mui/icons-material/HelpOutlineOutlined";
 import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
 
-
 const Item = ({ title, to, icon, selected, setSelected }) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
+
   return (
     <MenuItem
       active={selected === title}
-      style={{
-        color: colors.grey[100],
-      }}
+      style={{ color: colors.grey[100] }}
       onClick={() => setSelected(title)}
       icon={icon}
+      component={<Link to={to} />}
     >
-      <Typography>{title}</Typography>
-      <Link to={to} />
+      <Typography variant="body1">{title}</Typography>
     </MenuItem>
   );
 };
@@ -41,6 +39,7 @@ const Sidebar = () => {
   return (
     <Box
       sx={{
+        height: "100%",
         "& .pro-sidebar-inner": {
           background: `${colors.primary[400]} !important`,
         },
@@ -48,79 +47,71 @@ const Sidebar = () => {
           backgroundColor: "transparent !important",
         },
         "& .pro-inner-item": {
-          padding: "5px 35px 5px 20px !important",
+          padding: "8px 20px 8px 20px !important",
         },
         "& .pro-inner-item:hover": {
-          color: "#868dfb !important",
+          color: `${colors.greenAccent[400]} !important`,
         },
         "& .pro-menu-item.active": {
-          color: "#6870fa !important",
+          color: `${colors.greenAccent[500]} !important`,
         },
+        transition: "all 0.3s",
       }}
     >
       <ProSidebar collapsed={isCollapsed}>
         <Menu iconShape="square">
-          {/* LOGO AND MENU ICON */}
+          {/* TOP SECTION */}
           <MenuItem
             onClick={() => setIsCollapsed(!isCollapsed)}
-            icon={isCollapsed ? <MenuOutlinedIcon /> : undefined}
+            icon={<MenuOutlinedIcon />}
             style={{
               margin: "10px 0 20px 0",
               color: colors.grey[100],
+              textAlign: "center",
             }}
           >
             {!isCollapsed && (
-              <Box
-                display="flex"
-                justifyContent="space-between"
-                alignItems="center"
-                ml="15px"
-              >
-                <Typography variant="h3" color={colors.grey[100]}>
-                <Item
-                    title="Dashboard"
-                    to="/"
-                    icon={<HomeOutlinedIcon />}
-                    selected={selected}
-                    setSelected={setSelected}
-                />
-                </Typography>
-                <IconButton onClick={() => setIsCollapsed(!isCollapsed)}>
-                  <MenuOutlinedIcon />
-                </IconButton>
-              </Box>
+              <Typography variant="h3" color={colors.grey[100]}>
+                Hudumia Health
+              </Typography>
             )}
           </MenuItem>
 
+          {/* USER SECTION */}
           {!isCollapsed && (
-            <Box mb="25px">
-              <Box display="flex" justifyContent="center" alignItems="center">
+            <Box mb="25px" textAlign="center">
+              <Box display="flex" justifyContent="center">
                 <img
                   alt="profile-user"
-                  width="100px"
-                  height="100px"
-                  src={`../../assets/doctor.png`}
+                  width="80px"
+                  height="80px"
+                  src="../../assets/doctor.png"
                   style={{ cursor: "pointer", borderRadius: "50%" }}
                 />
               </Box>
-              <Box textAlign="center">
-                <Typography
-                  variant="h2"
-                  color={colors.grey[100]}
-                  fontWeight="bold"
-                  sx={{ m: "10px 0 0 0" }}
-                >
-                 
-                </Typography>
-                <Typography variant="h5" color={colors.greenAccent[500]}>
-                  Welcome Daktari
-                </Typography>
-              </Box>
+              <Typography
+                variant="h4"
+                color={colors.grey[100]}
+                fontWeight="bold"
+                sx={{ mt: "10px" }}
+              >
+                Daktari
+              </Typography>
+              <Typography variant="body2" color={colors.greenAccent[400]}>
+                Welcome Back!
+              </Typography>
             </Box>
           )}
 
+          {/* MENU ITEMS */}
           <Box paddingLeft={isCollapsed ? undefined : "10%"}>
-            
+            <Item
+              title="Dashboard"
+              to="/"
+              icon={<HomeOutlinedIcon />}
+              selected={selected}
+              setSelected={setSelected}
+            />
 
             <Typography
               variant="h6"
@@ -130,7 +121,7 @@ const Sidebar = () => {
               Clients
             </Typography>
             <Item
-              title="Manage clients"
+              title="Manage Clients"
               to="/team"
               icon={<PeopleOutlinedIcon />}
               selected={selected}
@@ -144,7 +135,7 @@ const Sidebar = () => {
               setSelected={setSelected}
             />
             <Item
-              title="Client schedules"
+              title="Client Schedules"
               to="/invoices"
               icon={<ReceiptOutlinedIcon />}
               selected={selected}
@@ -159,7 +150,7 @@ const Sidebar = () => {
               Programs
             </Typography>
             <Item
-              title="About"
+              title="Enroll Client"
               to="/form"
               icon={<PersonOutlinedIcon />}
               selected={selected}
@@ -173,36 +164,7 @@ const Sidebar = () => {
               setSelected={setSelected}
             />
             <Item
-              title="FAQ Page"
-              to="/faq"
-              icon={<HelpOutlineOutlinedIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
-
-            <Typography
-              variant="h6"
-              color={colors.grey[300]}
-              sx={{ m: "15px 0 5px 20px" }}
-            >
-              Enrollments
-            </Typography>
-            <Item
-              title="Profile Form"
-              to="/form"
-              icon={<PersonOutlinedIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
-            <Item
-              title="Calendar"
-              to="/calendar"
-              icon={<CalendarTodayOutlinedIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
-            <Item
-              title="FAQ Page"
+              title="FAQs"
               to="/faq"
               icon={<HelpOutlineOutlinedIcon />}
               selected={selected}
