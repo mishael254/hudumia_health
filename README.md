@@ -172,6 +172,9 @@ ppt format
 [Hudumia Health presentation 2](https://docs.google.com/presentation/d/1JTPBRn231fQgzQI42mr75SlP0aqtd0io/edit?usp=drive_link&ouid=118002078082822015260&rtpof=true&sd=true)
 
 ---
+
+## All this live demos are in the public folder of the app
+
 [Hudumia Health Live demo 1](public/presentations/hudumia-health%20live%20demos/demo1.mp4)
 
 ---
@@ -180,6 +183,11 @@ ppt format
 
 
 All this live demos are in the public folder of the app
+
+---
+
+[Hudumia Health Live demo 3](public/presentations/hudumia-health%20live%20demos/demo3.mp4)
+
 
 ---
 
