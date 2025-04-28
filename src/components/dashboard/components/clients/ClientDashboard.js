@@ -1,6 +1,6 @@
 import { 
     Box, 
-    Button, 
+     
     Card, 
     CardContent, 
     Typography,
@@ -8,7 +8,7 @@ import {
     useMediaQuery,
     Grow,
     Zoom,
-    Fade,
+    
     LinearProgress,
     Collapse,
     IconButton
@@ -23,8 +23,10 @@ import {
   import ClientTable from "./ClientTable";
   import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
   import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
-  import ClientCreate from "./ClientCreate";
-  import AddIcon from '@mui/icons-material/Add';
+  import Avatar from '@mui/material/Avatar';
+  import PersonAddIcon from '@mui/icons-material/PersonAdd';
+  import CreateIcon from '@mui/icons-material/Create';
+
 
 
   const ClientDashboard = () => {
@@ -33,7 +35,7 @@ import {
     const [stats, setStats] = useState(null);
     const [loading, setLoading] = useState(true);
     const [showClientTable, setShowClientTable] = useState(false);
-    const [showCreateForm, setShowCreateForm] = useState(false);
+    
     const navigate = useNavigate();
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
@@ -71,13 +73,12 @@ import {
     const handleEnrollClick = () => {
       navigate("/enroll-client");
     };
+    const handleCreateClientClick = () => {
+      navigate("/new-client");
+    };
   
     const toggleClientTable = () => {
       setShowClientTable(!showClientTable);
-    };
-
-    const toggleCreateForm = () => {
-      setShowCreateForm(!showCreateForm);
     };
   
     return (
@@ -179,61 +180,99 @@ import {
             </Grow>
   
             {/* Enroll Client Card */}
-            <Zoom in={!loading} timeout={700}>
-              <Card 
-                sx={{ 
-                  flex: "1", 
-                  minWidth: "300px", 
-                  p: 2, 
-                  cursor: "pointer",
-                  borderRadius: '16px',
-                  boxShadow: '0 8px 16px rgba(0,0,0,0.1)',
-                  transition: 'transform 0.3s ease, box-shadow 0.3s ease',
-                  '&:hover': {
-                    transform: 'translateY(-5px)',
-                    boxShadow: '0 12px 20px rgba(0,0,0,0.15)'
-                  },
-                  background: 'linear-gradient(145deg, #ffffff, #f0f0f0)'
-                }} 
-                onClick={handleEnrollClick}
-              >
-                <CardContent sx={{ 
-                  display: "flex", 
-                  flexDirection: "column", 
-                  alignItems: "center",
-                  height: '100%',
-                  justifyContent: 'center'
-                }}>
-                  <Typography variant="h5" gutterBottom sx={{ 
-                    fontWeight: '600',
-                    color: theme.palette.text.secondary,
-                    mb: 3
+              <Zoom in={!loading} timeout={700}>
+                <Card 
+                  sx={{ 
+                    flex: "1", 
+                    minWidth: "300px", 
+                    p: 2, 
+                    borderRadius: '16px',
+                    boxShadow: '0 8px 16px rgba(0,0,0,0.1)',
+                    transition: 'transform 0.3s ease, box-shadow 0.3s ease',
+                    '&:hover': {
+                      transform: 'translateY(-5px)',
+                      boxShadow: '0 12px 20px rgba(0,0,0,0.15)'
+                    },
+                    background: 'linear-gradient(145deg, #ffffff, #f0f0f0)'
+                  }}
+                >
+                  <CardContent sx={{ 
+                    display: "flex", 
+                    flexDirection: "column", 
+                    alignItems: "center",
+                    height: '100%',
+                    justifyContent: 'center'
                   }}>
-                    Enroll a New Client
-                  </Typography>
-                  <Fade in={true} timeout={1000}>
-                    <Button 
-                      variant="contained" 
-                      color="primary" 
-                      sx={{ 
-                        mt: 2,
-                        px: 4,
-                        py: 1.5,
-                        borderRadius: '12px',
-                        fontSize: '1rem',
-                        fontWeight: '600',
-                        boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
+                    <Typography variant="h5" gutterBottom sx={{ 
+                      fontWeight: '600',
+                      color: theme.palette.text.secondary,
+                      mb: 3
+                    }}>
+                      Client Actions
+                    </Typography>
+      
+                  <Box display="flex" gap={4} justifyContent="center" width="100%">
+                    {/* Enroll Client Option */}
+                    <Zoom in={true} style={{ transitionDelay: '100ms' }}>
+                      <Box 
+                        sx={{
+                          display: 'flex',
+                          flexDirection: 'column',
+                          alignItems: 'center',
+                          cursor: 'pointer',
+                          transition: 'transform 0.3s ease',
+                          '&:hover': {
+                            transform: 'scale(1.1)'
+                          }
+                        }}
+                        onClick={handleEnrollClick}
+                      >
+                        <Avatar sx={{
+                          bgcolor: theme.palette.primary.main,
+                          width: 60,
+                          height: 60,
+                          mb: 1
+                        }}>
+                          <PersonAddIcon fontSize="medium" />
+                        </Avatar>
+                        <Typography variant="subtitle1" sx={{ color: theme.palette.text.secondary }}>
+                          Enroll Client
+                        </Typography>
+                      </Box>
+                </Zoom>
+        
+        {/* Create Client Option */}
+                  <Zoom in={true} style={{ transitionDelay: '200ms' }}>
+                    <Box 
+                      sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        cursor: 'pointer',
+                        transition: 'transform 0.3s ease',
                         '&:hover': {
-                          boxShadow: '0 6px 12px rgba(0,0,0,0.15)'
+                          transform: 'scale(1.1)'
                         }
                       }}
+                      onClick={handleCreateClientClick}
                     >
-                      Enroll Now
-                    </Button>
-                  </Fade>
-                </CardContent>
-              </Card>
-            </Zoom>
+                      <Avatar sx={{
+                        bgcolor: theme.palette.secondary.main,
+                        width: 60,
+                        height: 60,
+                        mb: 1
+                      }}>
+                        <CreateIcon fontSize="medium" />
+                      </Avatar>
+                      <Typography variant="subtitle1" sx={{ color: theme.palette.text.secondary }}>
+                        Create Client
+                      </Typography>
+                    </Box>
+                  </Zoom>
+                </Box>
+              </CardContent>
+            </Card>
+          </Zoom>
           </Box>
   
           {/* Client Table - Collapsible */}
