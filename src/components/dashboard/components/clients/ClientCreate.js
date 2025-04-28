@@ -1,46 +1,41 @@
-import React, { useState } from "react";
-import { 
-  Box, 
-  Button, 
-  Card, 
-  CardContent, 
-  Typography,
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import {
+  Box,
+  Button,
+  Card,
+  CardContent,
   TextField,
-  useTheme,
-  Grid,
-  MenuItem,
-  InputAdornment,
+  Typography,
   Avatar,
   Divider,
+  Grid,
+  Paper,
   CircularProgress,
-  Snackbar,
-  Alert
-} from "@mui/material";
-import { 
-  Person as PersonIcon,
-  Phone as PhoneIcon,
-  Cake as CakeIcon,
-  Male as MaleIcon,
-  Female as FemaleIcon,
-  Transgender as TransgenderIcon,
-  CheckCircle as CheckCircleIcon
-} from "@mui/icons-material";
+  Alert,
+  MenuItem,
+  InputAdornment,
+  Snackbar
+} from '@mui/material';
+import {
+  Person,
+  Cake,
+  Transgender,
+  Phone,
+  CheckCircle,
+  ArrowBack,
+  Save
+} from '@mui/icons-material';
 import { createClient } from "../../../../services/Api";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
-import { useNavigate } from "react-router-dom";
-import { format } from "date-fns";
-
-function ClientCreate() {
-  const theme = useTheme();
+import AltSidebar from '../../../sidebars/AltSidebar';
+const ClientCreate = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     first_name: '',
     second_name: '',
     sir_name: '',
     gender: '',
-    date_of_birth: null,
+    date_of_birth: '',
     phone_number: ''
   });
 
@@ -52,10 +47,10 @@ function ClientCreate() {
     severity: 'success'
   });
 
-  const genders = [
-    { value: 'Male', label: 'Male', icon: <MaleIcon /> },
-    { value: 'Female', label: 'Female', icon: <FemaleIcon /> },
-    { value: 'Other', label: 'Other', icon: <TransgenderIcon /> },
+  const genderOptions = [
+    { value: 'Male', label: 'Male' },
+    { value: 'Female', label: 'Female' },
+    { value: 'Other', label: 'Other' }
   ];
 
   const validateForm = () => {
@@ -64,6 +59,12 @@ function ClientCreate() {
     if (!formData.sir_name.trim()) newErrors.sir_name = 'Sir name is required';
     if (!formData.gender) newErrors.gender = 'Gender is required';
     if (!formData.date_of_birth) newErrors.date_of_birth = 'Date of birth is required';
+    
+    // Basic date validation (YYYY-MM-DD format)
+    const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+    if (formData.date_of_birth && !dateRegex.test(formData.date_of_birth)) {
+      newErrors.date_of_birth = 'Please use YYYY-MM-DD format';
+    }
     
     // Phone number validation
     const phoneRegex = /^[0-9]{10,15}$/;
@@ -85,13 +86,6 @@ function ClientCreate() {
     }));
   };
 
-  const handleDateChange = (date) => {
-    setFormData(prev => ({
-      ...prev,
-      date_of_birth: date
-    }));
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
@@ -99,31 +93,25 @@ function ClientCreate() {
     setIsSubmitting(true);
     
     try {
-      await createClient({
-        ...formData,
-        date_of_birth: format(formData.date_of_birth, 'yyyy-MM-dd')
-      });
+      await createClient(formData);
       
-      // Show success notification
       setNotification({
         open: true,
         message: 'Client created successfully!',
         severity: 'success'
       });
       
-      // Reset form
       setFormData({
         first_name: '',
         second_name: '',
         sir_name: '',
         gender: '',
-        date_of_birth: null,
+        date_of_birth: '',
         phone_number: ''
       });
       
-      // Redirect after 2 seconds
       setTimeout(() => {
-        navigate('/client-dashboard');
+        navigate('/clients');
       }, 2000);
       
     } catch (error) {
@@ -142,220 +130,242 @@ function ClientCreate() {
     setNotification(prev => ({ ...prev, open: false }));
   };
 
+  const handleCancel = () => {
+    navigate('/clients');
+  };
+
   return (
-    <LocalizationProvider dateAdapter={AdapterDateFns}>
-      <Card sx={{ 
-        borderRadius: '16px',
-        boxShadow: theme.shadows[4],
-        mt: 2,
-        background: theme.palette.background.paper
-      }}>
-        <CardContent>
-          <Box display="flex" alignItems="center" mb={3}>
-            <Avatar sx={{ 
-              bgcolor: theme.palette.primary.main,
-              mr: 2,
-              width: 56,
-              height: 56
-            }}>
-              <PersonIcon fontSize="large" />
-            </Avatar>
-            <Typography variant="h5" sx={{ 
-              fontWeight: '600',
-              color: theme.palette.text.primary
-            }}>
-              New Client Registration
-            </Typography>
-          </Box>
-          
-          <Divider sx={{ mb: 3 }} />
-          
-          <Box component="form" onSubmit={handleSubmit}>
-            <Grid container spacing={3}>
-              {/* First Name */}
-              <Grid item xs={12} md={4}>
-                <TextField
-                  fullWidth
-                  label="First Name *"
-                  name="first_name"
-                  value={formData.first_name}
-                  onChange={handleChange}
-                  error={!!errors.first_name}
-                  helperText={errors.first_name}
-                  variant="outlined"
-                  disabled={isSubmitting}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <PersonIcon color={errors.first_name ? "error" : "action"} />
-                      </InputAdornment>
-                    ),
-                  }}
-                />
-              </Grid>
-              
-              {/* Second Name */}
-              <Grid item xs={12} md={4}>
-                <TextField
-                  fullWidth
-                  label="Second Name"
-                  name="second_name"
-                  value={formData.second_name}
-                  onChange={handleChange}
-                  variant="outlined"
-                  disabled={isSubmitting}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <PersonIcon color="action" />
-                      </InputAdornment>
-                    ),
-                  }}
-                />
-              </Grid>
-              
-              {/* Sir Name */}
-              <Grid item xs={12} md={4}>
-                <TextField
-                  fullWidth
-                  label="Sir Name *"
-                  name="sir_name"
-                  value={formData.sir_name}
-                  onChange={handleChange}
-                  error={!!errors.sir_name}
-                  helperText={errors.sir_name}
-                  variant="outlined"
-                  disabled={isSubmitting}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <PersonIcon color={errors.sir_name ? "error" : "action"} />
-                      </InputAdornment>
-                    ),
-                  }}
-                />
-              </Grid>
-              
-              {/* Gender */}
-              <Grid item xs={12} md={6}>
-                <TextField
-                  select
-                  fullWidth
-                  label="Gender *"
-                  name="gender"
-                  value={formData.gender}
-                  onChange={handleChange}
-                  error={!!errors.gender}
-                  helperText={errors.gender}
-                  variant="outlined"
-                  disabled={isSubmitting}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        {formData.gender ? 
-                          genders.find(g => g.value === formData.gender)?.icon :
-                          <TransgenderIcon color={errors.gender ? "error" : "action"} />
-                        }
-                      </InputAdornment>
-                    ),
+    <div style={{ display: 'flex' }}>
+        <AltSidebar/>
+      <Box sx={{ flex: 1, p: 3 }}>
+        <Card sx={{ 
+          maxWidth: 1500, 
+          mx: 'auto', 
+          boxShadow: 3,
+          borderRadius: '16px'
+        }}>
+          <CardContent>
+            <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
+              <Box display="flex" alignItems="center">
+                <Avatar 
+                  sx={{ 
+                    width: 80, 
+                    height: 80, 
+                    mr: 3, 
+                    fontSize: '2rem',
+                    bgcolor: 'primary.main',
+                    color: 'primary.contrastText'
                   }}
                 >
-                  {genders.map((option) => (
-                    <MenuItem key={option.value} value={option.value}>
-                      <Box display="flex" alignItems="center">
-                        <Box mr={1}>{option.icon}</Box>
-                        {option.label}
-                      </Box>
-                    </MenuItem>
-                  ))}
-                </TextField>
-              </Grid>
-              
-              {/* Date of Birth */}
-              <Grid item xs={12} md={6}>
-                <DatePicker
-                  label="Date of Birth *"
-                  value={formData.date_of_birth}
-                  onChange={handleDateChange}
-                  maxDate={new Date()}
-                  disabled={isSubmitting}
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      fullWidth
-                      error={!!errors.date_of_birth}
-                      helperText={errors.date_of_birth}
-                      InputProps={{
-                        ...params.InputProps,
-                        startAdornment: (
-                          <InputAdornment position="start">
-                            <CakeIcon color={errors.date_of_birth ? "error" : "action"} />
-                          </InputAdornment>
-                        ),
-                      }}
-                    />
-                  )}
-                />
-              </Grid>
-              
-              {/* Phone Number */}
-              <Grid item xs={12}>
-                <TextField
-                  fullWidth
-                  label="Phone Number *"
-                  name="phone_number"
-                  value={formData.phone_number}
-                  onChange={handleChange}
-                  error={!!errors.phone_number}
-                  helperText={errors.phone_number}
-                  variant="outlined"
-                  disabled={isSubmitting}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <PhoneIcon color={errors.phone_number ? "error" : "action"} />
-                      </InputAdornment>
-                    ),
-                  }}
-                />
-              </Grid>
-              
-              {/* Submit Button */}
-              <Grid item xs={12}>
-                <Box display="flex" justifyContent="flex-end" mt={2}>
-                  <Button
-                    type="submit"
-                    variant="contained"
-                    color="primary"
-                    size="large"
-                    disabled={isSubmitting}
-                    startIcon={isSubmitting ? <CircularProgress size={20} color="inherit" /> : <CheckCircleIcon />}
-                    sx={{
-                      px: 6,
-                      py: 1.5,
-                      borderRadius: '12px',
-                      fontSize: '1rem',
-                      fontWeight: '600',
-                      textTransform: 'none',
-                      boxShadow: theme.shadows[2],
-                      '&:hover': {
-                        boxShadow: theme.shadows[4]
-                      },
-                      '&.Mui-disabled': {
-                        backgroundColor: theme.palette.primary.light
-                      }
-                    }}
-                  >
-                    {isSubmitting ? 'Registering...' : 'Register Client'}
-                  </Button>
+                  <Person fontSize="large" />
+                </Avatar>
+                <Box>
+                  <Typography variant="h4" component="div" sx={{ fontWeight: 600 }}>
+                    Register New Client
+                  </Typography>
+                  <Typography variant="subtitle1" color="text.secondary">
+                    Complete all required fields
+                  </Typography>
                 </Box>
-              </Grid>
-            </Grid>
-          </Box>
-        </CardContent>
-      </Card>
+              </Box>
 
-      {/* Success/Error Notification */}
+              <Button 
+                variant="outlined" 
+                onClick={handleCancel}
+                startIcon={<ArrowBack />}
+                sx={{ 
+                  borderRadius: '12px',
+                  px: 3,
+                  py: 1
+                }}
+              >
+                Back to Clients
+              </Button>
+            </Box>
+
+            <Divider sx={{ my: 3 }} />
+
+            <form onSubmit={handleSubmit}>
+              <Grid container spacing={3}>
+                <Grid item xs={12} md={6}>
+                  <Paper elevation={0} sx={{ p: 3, borderRadius: 3 }}>
+                    <Typography variant="h5" gutterBottom sx={{ mb: 3 }}>
+                      Personal Information
+                    </Typography>
+                    
+                    <Grid container spacing={2}>
+                      <Grid item xs={12} sm={4}>
+                        <TextField
+                          fullWidth
+                          label="First Name *"
+                          name="first_name"
+                          value={formData.first_name}
+                          onChange={handleChange}
+                          error={!!errors.first_name}
+                          helperText={errors.first_name}
+                          variant="outlined"
+                          InputProps={{
+                            startAdornment: (
+                              <InputAdornment position="start">
+                                <Person color={errors.first_name ? "error" : "action"} />
+                              </InputAdornment>
+                            ),
+                          }}
+                        />
+                      </Grid>
+                      <Grid item xs={12} sm={4}>
+                        <TextField
+                          fullWidth
+                          label="Second Name"
+                          name="second_name"
+                          value={formData.second_name}
+                          onChange={handleChange}
+                          variant="outlined"
+                          InputProps={{
+                            startAdornment: (
+                              <InputAdornment position="start">
+                                <Person color="action" />
+                              </InputAdornment>
+                            ),
+                          }}
+                        />
+                      </Grid>
+                      <Grid item xs={12} sm={4}>
+                        <TextField
+                          fullWidth
+                          label="Sir Name *"
+                          name="sir_name"
+                          value={formData.sir_name}
+                          onChange={handleChange}
+                          error={!!errors.sir_name}
+                          helperText={errors.sir_name}
+                          variant="outlined"
+                          InputProps={{
+                            startAdornment: (
+                              <InputAdornment position="start">
+                                <Person color={errors.sir_name ? "error" : "action"} />
+                              </InputAdornment>
+                            ),
+                          }}
+                        />
+                      </Grid>
+                      <Grid item xs={12} sm={6}>
+                        <TextField
+                          select
+                          fullWidth
+                          label="Gender *"
+                          name="gender"
+                          value={formData.gender}
+                          onChange={handleChange}
+                          error={!!errors.gender}
+                          helperText={errors.gender}
+                          variant="outlined"
+                          InputProps={{
+                            startAdornment: (
+                              <InputAdornment position="start">
+                                <Transgender color={errors.gender ? "error" : "action"} />
+                              </InputAdornment>
+                            ),
+                          }}
+                        >
+                          {genderOptions.map((option) => (
+                            <MenuItem key={option.value} value={option.value}>
+                              {option.label}
+                            </MenuItem>
+                          ))}
+                        </TextField>
+                      </Grid>
+                      <Grid item xs={12} sm={6}>
+                        <TextField
+                          fullWidth
+                          label="Date of Birth *"
+                          name="date_of_birth"
+                          value={formData.date_of_birth}
+                          onChange={handleChange}
+                          error={!!errors.date_of_birth}
+                          helperText={errors.date_of_birth}
+                          placeholder="YYYY-MM-DD"
+                          variant="outlined"
+                          InputProps={{
+                            startAdornment: (
+                              <InputAdornment position="start">
+                                <Cake color={errors.date_of_birth ? "error" : "action"} />
+                              </InputAdornment>
+                            ),
+                          }}
+                        />
+                      </Grid>
+                    </Grid>
+                  </Paper>
+                </Grid>
+
+                <Grid item xs={12} md={6}>
+                  <Paper elevation={0} sx={{ p: 3, borderRadius: 3 }}>
+                    <Typography variant="h5" gutterBottom sx={{ mb: 3 }}>
+                      Contact Information
+                    </Typography>
+                    
+                    <Grid container spacing={2}>
+                      <Grid item xs={12}>
+                        <TextField
+                          fullWidth
+                          label="Phone Number *"
+                          name="phone_number"
+                          value={formData.phone_number}
+                          onChange={handleChange}
+                          error={!!errors.phone_number}
+                          helperText={errors.phone_number}
+                          variant="outlined"
+                          InputProps={{
+                            startAdornment: (
+                              <InputAdornment position="start">
+                                <Phone color={errors.phone_number ? "error" : "action"} />
+                              </InputAdornment>
+                            ),
+                          }}
+                        />
+                      </Grid>
+                    </Grid>
+                  </Paper>
+                </Grid>
+              </Grid>
+
+              <Box mt={4} display="flex" justifyContent="flex-end" gap={2}>
+                <Button
+                  variant="outlined"
+                  color="secondary"
+                  startIcon={<ArrowBack />}
+                  onClick={handleCancel}
+                  sx={{
+                    px: 4,
+                    py: 1.5,
+                    borderRadius: '12px',
+                    fontWeight: 600
+                  }}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  variant="contained"
+                  color="primary"
+                  startIcon={isSubmitting ? <CircularProgress size={20} color="inherit" /> : <CheckCircle />}
+                  disabled={isSubmitting}
+                  sx={{
+                    px: 4,
+                    py: 1.5,
+                    borderRadius: '12px',
+                    fontWeight: 600
+                  }}
+                >
+                  {isSubmitting ? 'Registering...' : 'Register Client'}
+                </Button>
+              </Box>
+            </form>
+          </CardContent>
+        </Card>
+      </Box>
+
       <Snackbar
         open={notification.open}
         autoHideDuration={6000}
@@ -366,13 +376,13 @@ function ClientCreate() {
           onClose={handleCloseNotification}
           severity={notification.severity}
           sx={{ width: '100%' }}
-          icon={notification.severity === 'success' ? <CheckCircleIcon fontSize="inherit" /> : null}
+          icon={notification.severity === 'success' ? <CheckCircle fontSize="inherit" /> : null}
         >
           {notification.message}
         </Alert>
       </Snackbar>
-    </LocalizationProvider>
+    </div>
   );
-}
+};
 
 export default ClientCreate;
